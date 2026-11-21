@@ -1,0 +1,26 @@
+title: failsafe-py
+description: Fault tolerance and resilience patterns for Python
+baseurl: "/failsafe-py-docs" # project page subpath; every link must go through it
+url: "https://nicdumz.github.io"
+repository: nicdumz/failsafe-py-docs
+github-url: https://github.com/nicdumz/failsafe-py
+web-github-url: https://github.com/nicdumz/failsafe-py-docs
+permalink: pretty
+safe: true
+exclude:
+  - Gemfile*
+  - bin
+  - vendor
+  - Rakefile
+  - README.md
+markdown: kramdown
+highlighter: none
+search_enabled: true
+
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  startings: []
+  blank_lines: false
+  profile: false
