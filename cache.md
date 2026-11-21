@@ -38,7 +38,7 @@ CachePolicy(backend, key=lambda user_id: f"user:{user_id}")
 CachePolicy(backend, key=lambda method, url, **kw: f"{method}:{url}")
 ```
 
-failsafe-go reads a cache key from the `Context`, because that is its only ambient channel. The key is a function of the arguments in nearly every case, and a callable says so without a parallel ambient mechanism. [Priority][execution-prioritization] remains a contextvar, because that genuinely is request-scoped ambient data propagated across hops.
+The key is a function of the arguments in nearly every case, and a callable says so directly. ([Priority][execution-prioritization] is ambient instead, because it genuinely is request-scoped data propagated across hops.)
 
 Returning `None` skips the cache for that call, which is how you exclude requests that should never be served from cache:
 

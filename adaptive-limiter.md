@@ -117,7 +117,7 @@ AdaptiveLimiter(baseline_window_age=10)
 Larger baseline windows make the limiter slower to adjust to changes in baseline load.
 
 {: .callout }
-> Quantiles here are **exact**, computed over a sorted window, where failsafe-go feeds recent RTTs to a t-digest. The limiter resets the structure on every limit update, so this is a batch quantile over 50–500 samples — a range where the digest carries 0.4–2.7% error and a sorted window carries none. Measured, not assumed.
+> Quantiles are **exact**, computed over a sorted window rather than estimated from a sketch. The window resets on every limit update, so it holds 50–500 samples — a range where a t-digest carries 0.4–2.7% error and a sorted window carries none.
 
 ### Throughput Correlation
 
@@ -168,17 +168,15 @@ AdaptiveLimiter(
 )
 ```
 
-Go takes an `slog.Logger` for debug logging of limit changes. Here that is an `on_limit_changed` listener, which is the same information without the library owning a logger.
-
 ### Metrics
 
-```python
-limiter.limit          # the current concurrency limit
-limiter.inflight       # executions running right now
-limiter.queued         # executions waiting for a permit
-limiter.max_inflight   # peak inflight during the last sampling window
-limiter.queueing       # whether queueing is enabled
-```
+| | |
+|---|---|
+| `limiter.limit` | the current concurrency limit |
+| `limiter.inflight` | executions running right now |
+| `limiter.queued` | executions waiting for a permit |
+| `limiter.max_inflight` | peak inflight during the last sampling window |
+| `limiter.queueing` | whether queueing is enabled |
 
 ## Standalone Usage
 
@@ -224,7 +222,7 @@ Changing the limit resizes the underlying semaphore, not just a stored number. A
 
 ## Thanks
 
-This policy is a port of failsafe-go's adaptive limiter. Thanks to Jakob Holdgaard Thomsen, Vladimir Gavrilenko, and Jesper Lindstrøm Nielsen for their insights and feedback while it was developed there.
+Thanks to Jakob Holdgaard Thomsen, Vladimir Gavrilenko, and Jesper Lindstrøm Nielsen, whose insights and feedback shaped this limiter's design.
 
 [cinnamon]: https://www.uber.com/blog/cinnamon-using-century-old-tech-to-build-a-mean-load-shedder/
 [concurrency-limits]: https://github.com/Netflix/concurrency-limits

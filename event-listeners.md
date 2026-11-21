@@ -13,9 +13,9 @@ failsafe-py supports event listeners on policies. Every policy takes them as con
 
 ## There Is No Executor-Level Listener
 
-failsafe-go attaches `OnSuccess`, `OnFailure` and `OnDone` to the `Executor`. `Failsafe` and `AsyncFailsafe` take only policies and a clock: an executor is a composition, not a policy, and a hook there would fire for outcomes no policy judged.
+`Failsafe` and `AsyncFailsafe` take only policies and a clock. Listeners belong to policies, because a policy is what decides whether an outcome was a success or a failure.
 
-The equivalent is the outermost policy's own listeners, which see exactly what that policy decided:
+To observe the final result of a composition, use the outermost policy's listeners — they see exactly what that policy decided:
 
 ```python
 payments = Failsafe(
@@ -46,7 +46,7 @@ Additional listeners are available per policy: `on_retry`, `on_state_change`, `o
 
 ## Lists, Not Slots
 
-Go's `OnRetry(fn)` overwrites any previously registered listener. Here listeners *append*, and every keyword accepts a callable or a sequence of them:
+Listeners *append* rather than replace, and every keyword accepts a callable or a sequence of them:
 
 ```python
 retry = RetryPolicy(on_retry=[log_retry, count_retry])
@@ -87,7 +87,7 @@ RetryPolicy(on_retry=lambda e: asyncio.get_running_loop().create_task(report(e))
 
 ## Listener Exceptions Are Logged
 
-A listener that raises is logged and the execution continues. Go lets a panic escape; here a metrics bug must not break a production request.
+A listener that raises is logged and the execution continues: a bug in your metrics code must not break a production request.
 
 This means a silently broken listener stays broken. Check your logs for `failsafe` warnings if a listener seems not to be working.
 

@@ -27,7 +27,7 @@ Priority.VERY_LOW
 
 Different priorities can be assigned to different types of executions — internal requests may be prioritized over user requests, for example. When a policy is overloaded, lower priority executions are rejected before higher priority ones.
 
-Absence of a priority is `None`, not Go's `-1`, which cannot be mistaken for a valid level the way a number can.
+Absence of a priority is `None`, which cannot be mistaken for a valid level the way a sentinel number can.
 
 ## Prioritizers
 
@@ -36,8 +36,8 @@ To use prioritized rejection, first create a `Prioritizer`. There is one per pol
 ```python
 from failsafe import queue_prioritizer, throttle_prioritizer
 
-prioritizer = queue_prioritizer()      # for adaptive limiters: driven by queueing
-prioritizer = throttle_prioritizer()   # for adaptive throttlers: driven by failures
+prioritizer = queue_prioritizer()      # for adaptive limiters
+prioritizer = throttle_prioritizer()   # for adaptive throttlers
 ```
 
 A `Prioritizer` stores the levels of recent executions and calibrates a rejection threshold from those levels and the registered policies' stats. A shared prioritizer determines one threshold across multiple policies.
@@ -68,9 +68,9 @@ with prioritizer.scheduled_calibrations(1.0):
     serve_forever()
 ```
 
-Go spawns a goroutine and hands back a `CancelFunc`. Goroutines are cheap and ubiquitous; a Python library silently owning an OS thread is a worse bargain — it interacts badly with `fork`, with test suites, and with anyone running under an event loop who never asked for a thread. The context manager makes the lifetime lexical.
+A library silently owning an OS thread interacts badly with `fork`, with test suites, and with anyone running under an event loop who never asked for a thread. The context manager makes the thread's lifetime lexical.
 
-No async variant exists. Calibration is pure CPU over in-memory counters with no awaits, so an asyncio user can call `calibrate()` from their own [`TaskGroup`][task-group] loop and needs nothing from us.
+There is no async variant. Calibration is pure CPU over in-memory counters with no awaits, so an asyncio user can call `calibrate()` from their own [`TaskGroup`][task-group] loop.
 
 ## Prioritized Execution
 
@@ -138,11 +138,11 @@ prioritizer = queue_prioritizer(
 
 ### Metrics
 
-```python
-prioritizer.rejection_rate         # share being rejected, 0 to 1
-prioritizer.rejection_threshold    # the level below which executions are rejected
-prioritizer.registered_policies    # how many policies report to it
-```
+| | |
+|---|---|
+| `prioritizer.rejection_rate` | share being rejected, 0 to 1 |
+| `prioritizer.rejection_threshold` | the level below which executions are rejected |
+| `prioritizer.registered_policies` | how many policies report to it |
 
 ### HTTP Support
 

@@ -60,7 +60,7 @@ tenacity also offers things failsafe-py does not: `@retry` with zero configurati
 
 ## Load Limiting
 
-Here there is no close comparison to draw. [Adaptive limiters][adaptive-limiters], [adaptive throttlers][adaptive-throttlers] and [prioritized load shedding][execution-prioritization] have no widely-used Python equivalent — the nearest implementations are in Go and Java — so the comparison would be against nothing.
+There is no close comparison to draw. [Adaptive limiters][adaptive-limiters], [adaptive throttlers][adaptive-throttlers] and [prioritized load shedding][execution-prioritization] have no widely-used Python equivalent.
 
 `limits` and `pyrate-limiter` cover [rate limiting][rate-limiters] specifically, and do it well, with backing stores failsafe-py does not provide. They do not limit *concurrency*, which is usually what protects a system; see [load limiting][load-limiting] for why that distinction matters.
 

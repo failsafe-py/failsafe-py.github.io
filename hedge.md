@@ -17,14 +17,13 @@ The tail of a latency distribution is usually not the service being slow but one
 
 `HedgePolicy` is supported under [`AsyncFailsafe`][async-execution]. Under `Failsafe` it raises `NotImplementedError`.
 
-Hedging needs cancellable concurrency. A synchronous call cannot be cancelled, so the losing attempts would run to completion against the very service the policy is trying to protect. A thread-pool implementation would leak a thread per losing hedge while shipping weaker-than-Go semantics under the same policy name, so the gap is deliberate rather than papered over. This is the one capability gap versus [failsafe-go]; see [porting][porting-differences].
+Hedging needs cancellable concurrency. A synchronous call cannot be cancelled, so the losing attempts would run to completion against the very service the policy is trying to protect, and each would hold a thread until it did.
 
 ## Usage
 
 ```python
 from failsafe import AsyncFailsafe, HedgePolicy
 
-# Hedge once, 100ms after the original attempt starts
 api = AsyncFailsafe(HedgePolicy(0.1))
 response = await api.call(send_request)
 ```
@@ -56,7 +55,6 @@ Returning `None` stops hedging for that execution.
 The policy can also track the quantile itself, which is the usual reason to want a dynamic delay:
 
 ```python
-# Hedge when an execution exceeds the p95 of recent accepted durations
 HedgePolicy(quantile=0.95)
 HedgePolicy(quantile=0.95, quantile_age=30, warmup=20)
 ```

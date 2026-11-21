@@ -18,7 +18,6 @@ Creating and using a `Bulkhead` is simple:
 ```python
 from failsafe import Bulkhead, Failsafe
 
-# Permit 10 concurrent executions
 bulkhead = Bulkhead(10)
 Failsafe(bulkhead).call(send_request)
 ```
@@ -36,7 +35,6 @@ A permit is held for a single **attempt** and released when that attempt finishe
 By default, when the max concurrent executions are exceeded, further executions fail immediately with `BulkheadFull`. A bulkhead can also wait for permission if it can be acquired within a max wait time:
 
 ```python
-# Wait up to 1 second for execution permission
 bulkhead = Bulkhead(10, max_wait_time=1.0)
 ```
 
@@ -56,11 +54,11 @@ The listener does not run when an execution fails to acquire a permit for anothe
 
 ### Metrics
 
-```python
-bulkhead.max_concurrency   # the configured limit
-bulkhead.used              # permits currently held
-bulkhead.waiters           # callers blocked waiting for a permit
-```
+| | |
+|---|---|
+| `bulkhead.max_concurrency` | the configured limit |
+| `bulkhead.used` | permits currently held |
+| `bulkhead.waiters` | callers blocked waiting for a permit |
 
 ## Standalone Usage
 

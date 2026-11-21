@@ -22,7 +22,7 @@ def connect(host):
 Failsafe(retry).call(connect, host)
 ```
 
-Go passes the execution as a parameter, which doubles every execute method — `Run` and `RunWithExecution`, `Get` and `GetWithExecution`. A [contextvar][contextvars] gives correctly-scoped ambient access without threading a parameter through every signature, and works from a nested helper several frames down. Outside an execution it returns `None`.
+It is a [contextvar][contextvars], so it works from a nested helper several frames down without threading a parameter through every signature. Outside an execution it returns `None`.
 
 ## What It Carries
 

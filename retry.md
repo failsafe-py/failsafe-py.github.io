@@ -18,7 +18,6 @@ Creating and using a `RetryPolicy` is straightforward:
 ```python
 from failsafe import Failsafe, RetryPolicy
 
-# Retry on ConnectionError up to 3 times with a 1 second delay between attempts
 retry = RetryPolicy(handle=ConnectionError, delay=1.0, max_retries=3)
 
 connection = Failsafe(retry).call(connect, host)
@@ -42,7 +41,7 @@ By default a `RetryPolicy` allows 2 retries, for a maximum of 3 attempts:
 RetryPolicy(max_retries=2)
 ```
 
-Only `max_retries` is provided; Go's `WithMaxAttempts(n)` is `max_retries=n - 1`. To retry without a count limit — bounded only by `max_duration` or an outer [timeout][timeouts]:
+Retries are counted, not attempts: `max_retries=2` permits three calls. To retry without a count limit — bounded only by `max_duration` or an outer [timeout][timeouts]:
 
 ```python
 RetryPolicy(max_retries=None, max_duration=60.0)
@@ -73,7 +72,7 @@ A delay that backs off exponentially, capped at a maximum:
 ```python
 from failsafe import Backoff
 
-RetryPolicy(delay=Backoff(1.0, 30.0))            # doubling by default
+RetryPolicy(delay=Backoff(1.0, 30.0))
 RetryPolicy(delay=Backoff(1.0, 30.0, factor=3))
 ```
 
@@ -105,7 +104,7 @@ RetryPolicy(delay=Fixed(1.0, jitter=Jitter(seconds=0.1)))          # ±100ms on 
 RetryPolicy(delay=Backoff(1.0, 30.0, jitter=0.25))                 # shorthand for factor
 ```
 
-`Jitter(factor=...)` and `Jitter(seconds=...)` keep Go's two meanings distinct, where a bare float would silently misread `jitter=0.5` as one or the other. A plain `delay=1.0` carries no jitter and has nothing to leave half-configured.
+`Jitter(factor=...)` and `Jitter(seconds=...)` are spelled out because a bare float is ambiguous: `jitter=0.5` could mean half a second or ±50%. A plain `delay=1.0` carries no jitter and has nothing to leave half-configured.
 
 For deterministic tests, inject the randomness:
 

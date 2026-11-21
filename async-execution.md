@@ -28,16 +28,16 @@ api = AsyncFailsafe(retry, breaker)
 async def fetch(url): ...
 ```
 
-## No Execution Handle
+## It Is Just a Coroutine
 
-failsafe-go returns an `ExecutionResult` from `RunAsync` because a goroutine has no first-class handle. Python already has one, so there is nothing to port: `AsyncFailsafe.call` is just a coroutine, and [`asyncio.create_task`][create-task] gives it done/result/cancel semantics defined by the standard library rather than by us.
+`AsyncFailsafe.call` returns a coroutine, so everything asyncio offers works on it. There is no execution handle to learn:
 
 ```python
 task = asyncio.create_task(AsyncFailsafe(retry).call(aconnect, host))
 
-task.done()       # instead of ExecutionResult.IsDone()
-await task        # instead of ExecutionResult.Get()
-task.cancel()     # instead of ExecutionResult.Cancel()
+task.done()
+await task
+task.cancel()
 ```
 
 Fan-out is whatever asyncio offers, not a bespoke API:

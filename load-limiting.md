@@ -31,9 +31,6 @@ For overload prevention, prefer a *reactive* limiter. [Adaptive Limiters][adapti
 
 All load limiters can be used on the *client* side or the *server* side. If your client talks to only a few servers, a limiter per server on the client side may make sense. If you have many servers, placing the limiter on the server avoids every client needing one per server.
 
-{: .callout }
-> Server-side helpers are not yet ported from failsafe-go. Today's limiters are client-side; the policies themselves are agnostic, but there is no ASGI middleware yet. See [porting][not-ported].
-
 ## Policy Comparisons
 
 ### Rate Limiters vs Bulkheads

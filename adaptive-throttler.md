@@ -16,7 +16,6 @@ Adaptive throttlers are probabilistic load shedders that limit load based on rec
 ```python
 from failsafe import AdaptiveThrottler, Failsafe
 
-# Starts rejecting at 10% failures per minute, after 5 executions, up to 90% max rejections
 throttler = AdaptiveThrottler(
     handle=ConnectionError,
     failure_rate_threshold=0.1,
@@ -46,14 +45,11 @@ An `AdaptiveThrottler` can be configured to handle only [certain results, except
 AdaptiveThrottler(handle=[ConnectionError, Result(None)])
 ```
 
-Unlike a [retry policy][retry], a throttler takes no `abort`; Go's throttler builder exposes none either.
-
 ### Failure Rate Threshold
 
 The threshold is the failure rate over a period, with a minimum number of executions, before executions start being rejected:
 
 ```python
-# Starts rejecting at 10% failures per minute, after 10 executions
 AdaptiveThrottler(failure_rate_threshold=0.1, execution_threshold=10, thresholding_period=60.0)
 ```
 
@@ -64,7 +60,6 @@ The execution threshold matters: without it a single early failure in a quiet pe
 The max rejection rate defaults to `0.9`:
 
 ```python
-# Reject up to 75% of executions
 AdaptiveThrottler(max_rejection_rate=0.75)
 ```
 
@@ -88,16 +83,16 @@ Adaptive throttlers support the standard [policy listeners][policy-listeners]:
 AdaptiveThrottler(on_failure=lambda e: metrics.incr("throttler.failure"))
 ```
 
-These do **not** fire for a throttled rejection, matching Go: a rejection is not an execution result, and it is not recorded in the window either.
+These do **not** fire for a throttled rejection: a rejection is not an execution result, and it is not recorded in the window either.
 
 ### Metrics
 
-```python
-throttler.rejection_rate   # share currently being rejected, 0 to 1
-throttler.executions       # recorded within the thresholding period
-throttler.successes
-throttler.failures
-```
+| | |
+|---|---|
+| `throttler.rejection_rate` | share currently being rejected, 0 to 1 |
+| `throttler.executions` | recorded within the thresholding period |
+| `throttler.successes` | successes in that period |
+| `throttler.failures` | failures in that period |
 
 ### Deterministic Tests
 
@@ -120,7 +115,7 @@ if throttler.try_acquire_permit():
         throttler.record_success()
 ```
 
-`record_result(outcome)` records an `Outcome` judged by the throttler's own `handle` condition, replacing Go's `RecordResult`/`RecordError` pair — a Go zero value cannot be told apart from "no result", while an `Outcome` carries both.
+`record_result(outcome)` records an `Outcome` judged by the throttler's own `handle` condition, which is what the executor uses.
 
 A raising variant is available in both colours:
 
@@ -139,7 +134,7 @@ When [composing policies][policy-composition], it is recommended not to have a t
 
 ## Additional Details
 
-The window is bucketed at 20 buckets over the thresholding period, and buckets expire on **write** only, matching Go. The rejection rate formula pads the execution count by one, which keeps the rate strictly below 1 at low counts so that a handful of failures cannot wedge a resource shut.
+The window is bucketed at 20 buckets over the thresholding period, and buckets expire on **write** only, so a quiet window reports its last totals rather than draining. The rejection rate formula pads the execution count by one, which keeps the rate strictly below 1 at low counts so that a handful of failures cannot wedge a resource shut.
 
 [throttling]: https://sre.google/sre-book/handling-overload/#client-side-throttling-a7sYUg
 

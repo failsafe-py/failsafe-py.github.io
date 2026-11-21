@@ -18,7 +18,6 @@ A retry storm is self-inflicted load: the attempts meant to cover a few failures
 ```python
 from failsafe import Budget, Failsafe, RetryPolicy
 
-# Allow up to 20% retries or hedges, with at least 3 always permitted
 budget = Budget(max_rate=0.2, min_concurrency=3)
 
 api = Failsafe(RetryPolicy(budget=budget))
@@ -76,9 +75,7 @@ The event carries the `execution`, the `kind` — `"retry"` or `"hedge"` — and
 
 ### Metrics
 
-```python
-budget.rate   # share of in-flight executions that are currently retries or hedges
-```
+`budget.rate` is the share of in-flight executions that are currently retries or hedges.
 
 ## Best Practices
 

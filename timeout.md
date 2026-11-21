@@ -80,7 +80,7 @@ A `TimeoutExceeded` can be retried by an outer `RetryPolicy`. An `asyncio.Cancel
 
 Prefer a `Timeout` when you want to bound execution time or combine it with retries. Cancel the task when you want the whole execution to stop.
 
-A timeout also overwrites an already-recorded inner result, matching Go: outer policies may still be processing that result and must be interrupted.
+A timeout overwrites an already-recorded inner result: outer policies may still be processing that result, and must be interrupted rather than allowed to finish with it.
 
 ## Event Listeners
 

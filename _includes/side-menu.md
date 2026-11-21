@@ -1,7 +1,6 @@
 - Overview
   - [Getting Started][home]
   - [Load Limiting][load-limiting]
-  - [Porting from failsafe-go][porting]
 
 - Policies
   - [Policies Overview][policies]

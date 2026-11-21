@@ -22,7 +22,6 @@ Both flavours reserve permits by pure arithmetic: a reservation returns the time
 ```python
 from failsafe import Failsafe, RateLimiter
 
-# Permits 100 executions per second, evenly spaced
 limiter = RateLimiter.smooth(100, period=1.0)
 Failsafe(limiter).call(send_message)
 ```
@@ -30,19 +29,17 @@ Failsafe(limiter).call(send_message)
 The rate at which individual executions are permitted follows from `max_executions` and `period`. You can instead specify the max rate of individual executions directly:
 
 ```python
-# Permits an execution every 10 milliseconds
 limiter = RateLimiter.smooth(max_rate=0.01)
 limiter = RateLimiter.smooth(max_rate=timedelta(milliseconds=10))
 ```
 
-Exactly one of the two forms is required; passing both or neither raises `ValueError`. Two classmethods cover what Go spreads across `NewSmooth`, `NewSmoothWithMaxRate`, `NewBursty` and a builder for each.
+Exactly one of the two forms is required; passing both or neither raises `ValueError`.
 
 Smooth executions are permitted with no delay up to the max rate, and always performed at or below it, avoiding bursts.
 
 ## Bursty Rate Limiter
 
 ```python
-# Permits 10 executions per second, in a burst
 limiter = RateLimiter.bursty(10, period=1.0)
 Failsafe(limiter).call(send_message)
 ```
@@ -64,7 +61,7 @@ limiter = RateLimiter.smooth(100, period=1.0, max_wait_time=1.0)
 Actual wait times vary with how busy the limiter is, and grow if executions are consistently attempted faster than the limiter permits.
 
 {: .callout }
-> `max_wait_time` applies to executions through Failsafe. A standalone `acquire_permit()` blocks indefinitely; use `try_reserve_permit(max_wait)` to bound it. This asymmetry is Go's, preserved deliberately.
+> `max_wait_time` applies to executions through Failsafe. A standalone `acquire_permit()` blocks indefinitely; use `try_reserve_permit(max_wait)` to bound it.
 
 ### Event Listeners
 

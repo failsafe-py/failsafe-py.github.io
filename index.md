@@ -13,23 +13,11 @@ failsafe-py is a library for building resilient, fault tolerant Python applicati
 
 Every policy works the same from sync and async code, and **one policy instance can be shared between both**: a circuit breaker tripped by a thread is seen open by a coroutine.
 
-failsafe-py is a port of [failsafe-go]. If you are coming from Go, start at [Porting from failsafe-go][porting].
-
 ## Installation
 
-{: .callout-unreleased }
-> **Not on PyPI yet.** failsafe-py is in development and has not been released. The
-> commands below are what installation will look like; until then, install from
-> [source][github].
-
 ```bash
-pip install failsafe-py
-```
-
-The core has no runtime dependencies. [HTTP support][http] is an extra:
-
-```bash
-pip install 'failsafe-py[httpx]'
+pip install failsafe-py            # no runtime dependencies
+pip install 'failsafe-py[httpx]'   # with HTTP support
 ```
 
 ## Getting Started
@@ -39,7 +27,6 @@ To see how failsafe-py works, we'll create a [retry policy][retry] that defines 
 ```python
 from failsafe import Failsafe, RetryPolicy
 
-# Retry on ConnectionError up to 3 times with a 1 second delay between attempts
 retry = RetryPolicy(handle=ConnectionError, delay=1.0, max_retries=3)
 ```
 
@@ -57,8 +44,6 @@ resilient = Failsafe(retry)
 @resilient
 def connect(host): ...
 ```
-
-There is one execution method, `call`, rather than Go's `Run`/`Get` pair: a Python function that returns nothing returns `None`, so no split is needed.
 
 ### Asynchronous Execution
 
@@ -88,7 +73,6 @@ fallback = Fallback(value=backup_connection)
 breaker = CircuitBreaker()
 timeout = Timeout(10.0)
 
-# Call with fallback, retries, circuit breaking, and a timeout
 connection = Failsafe(fallback, retry, breaker, timeout).call(connect, host)
 ```
 
@@ -109,6 +93,6 @@ This is not just a convenience. Stateful policies model the health of a *backend
 
 ## Further Reading
 
-Read more about [policies] and how they're used, then explore some of failsafe-py's other features in the site menu. Every policy's parameters are documented in its docstrings; a generated API reference is coming once the library is published.
+Read more about [policies] and how they're used, then explore the rest in the site menu.
 
 {% include common-links.html %}

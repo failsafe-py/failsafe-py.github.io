@@ -33,7 +33,7 @@ The function receives the `Execution`, whose `last_result` and `last_exception` 
 fallback = Fallback(fn=lambda ex: from_cache(ex.last_exception.request.url))
 ```
 
-An exception raised by that function replaces the original, which is how you substitute a different exception for Go's `NewWithError`:
+An exception raised by that function replaces the original, which is how you substitute one exception for another:
 
 ```python
 def reraise(ex):

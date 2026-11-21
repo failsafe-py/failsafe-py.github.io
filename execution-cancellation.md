@@ -48,7 +48,7 @@ def connect(host):
 
 ### Why There Is No Sync Cancellation
 
-`Execution` deliberately has no `cancelled` attribute, and Go's `exec.IsCanceled()` and `exec.Canceled()` have no equivalent.
+`Execution` has no `cancelled` attribute.
 
 Python cannot interrupt a running call, so a cancellation channel would only work if downstream code polled it. No mainstream sync library accepts one: `requests`, `urllib` and the DB-API drivers all take a *timeout*. A `threading.Event` on the execution would be API surface that nothing cooperates with, and it would look like a cancellation guarantee while providing none. Removing the concept is more honest than faking it.
 

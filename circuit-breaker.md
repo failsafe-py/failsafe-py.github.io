@@ -18,7 +18,6 @@ Creating and using a `CircuitBreaker` is straightforward:
 ```python
 from failsafe import CircuitBreaker, Failsafe
 
-# Opens after 5 failures, half-opens after 1 minute, closes after 2 successes
 breaker = CircuitBreaker(
     handle=ConnectionError,
     failure_threshold=5,
@@ -66,11 +65,8 @@ A *time based* breaker opens when the failure rate over a minimum number of exec
 ```python
 from failsafe import Rate
 
-# 20% of at least 5 executions in the last minute
 CircuitBreaker(failure_threshold=Rate(0.2, min_executions=5, period=60.0))
 ```
-
-One `Rate` covers both of Go's `WithFailureThresholdPeriod` and `WithFailureRateThreshold`: a count over a period is a rate.
 
 ### Half-Opening
 
@@ -83,7 +79,7 @@ CircuitBreaker(delay=failsafe.httpx.retry_after_delay)
 ```
 
 {: .callout }
-> A callable `delay=` yields no delay for a manual `breaker.open()`, which has no execution to compute from. Go keeps `DelayFunc` and `Delay` in separate fields so one can fall back to the other; a single `delay=` union has nothing to fall back to.
+> A callable `delay=` yields no delay for a manual `breaker.open()`, which has no execution to compute one from. Pass a fixed delay if manual transitions need to stay open for a set time.
 
 While open, you can read the remaining delay, so callers know how long to wait:
 
@@ -167,7 +163,7 @@ Failsafe(CircuitBreaker(handle=ConnectionError), bulkhead)
 
 Time based breakers use a sliding window to aggregate results. As time progresses and newer results are recorded, older ones are discarded. To stay space and time efficient, results are grouped into 10 time slices, each 1/10th of the configured period; when a slice falls outside the period its results are discarded.
 
-Buckets expire on **write** only, matching Go. A window nobody has written to still reports its last totals, rather than silently draining as time passes.
+Buckets expire on **write** only, so a window nobody has written to still reports its last totals rather than silently draining as time passes.
 
 ### Performance
 

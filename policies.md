@@ -32,7 +32,7 @@ A sequence mixes all of them, and they are OR'ed:
 RetryPolicy(handle=[ConnectionError, Result(None), lambda r, e: r is not None and r.status_code >= 500])
 ```
 
-Go needs four `Handle*` methods because `errors.Is` is not `errors.As` and generics split results from errors. Python has `isinstance`, so one parameter covers all four. The same `Condition` type is reused wherever Go has a condition family: `abort=` on retries, `cancel_on=` on hedges, `cache_if=` on caches.
+The same `Condition` type is accepted wherever a policy asks "does this outcome match?": `abort=` on retries, `cancel_on=` on hedges, `cache_if=` on caches.
 
 ### Why `Result(...)` Is Explicit
 
@@ -40,7 +40,7 @@ Go needs four `Handle*` methods because `errors.Is` is not `errors.As` and gener
 
 ### Results Do Not Replace Error Handling
 
-As in Go, a result-only condition **adds to** the default rather than replacing it. This policy retries both a `None` result and any exception:
+A result-only condition **adds to** the default rather than replacing it. This policy retries both a `None` result and any exception:
 
 ```python
 RetryPolicy(handle=Result(None))
@@ -51,10 +51,6 @@ Only a condition that handles exceptions replaces the default.
 ### Exception Chains
 
 An exception matches if it is an instance of a handled type, or if any exception in its `__cause__` chain is. The chain is walked depth-limited and only through `__cause__` — explicit chaining — because walking `__context__` would match exceptions raised incidentally while handling something else. For an `ExceptionGroup`, any matching leaf matches.
-
-### `BaseException` Is Never Handled
-
-The core catches `Exception`, never `BaseException`. `KeyboardInterrupt`, `SystemExit` and `asyncio.CancelledError` propagate untouched: a cancelled task is not a retryable failure, and no policy will retry it, record it, or fall back for it.
 
 ## Policy Composition
 
@@ -78,7 +74,7 @@ plain = Failsafe(*base_policies)
 guarded = Failsafe(*base_policies, breaker)
 ```
 
-Both executors share `fallback` and `retry`, and `guarded` additionally applies `breaker`. There is no `compose` method that mutates or extends an existing executor: Go's `Compose` mutates its receiver, which makes a shared `Executor` unsafe to extend.
+Both executors share `fallback` and `retry`, and `guarded` additionally applies `breaker`. There is no method that extends an executor in place, so a composition you hand to someone else cannot change under them.
 
 ### Executing a Policy Composition
 
@@ -160,19 +156,6 @@ def refund(txn): ...
 Each decorator builds its own breaker, so each sees a fraction of the traffic and none of them trips when the backend fails. No type checker can reject it — it is a valid constructor call — so it is a matter of discipline: hoist anything stateful.
 
 A lazy factory does not fix it either. Sharing is about *how many* policy objects get built, not *when*.
-
-### Mixing Result Types
-
-Nothing to do. Policies are not parameterised by result type, so a shared breaker composes with calls returning anything:
-
-```python
-breaker = CircuitBreaker()
-
-connection = Failsafe(breaker).call(connect)
-response = Failsafe(retry, breaker).call(send_request)
-```
-
-See [type safety][type-safety].
 
 ## Supported Policies
 

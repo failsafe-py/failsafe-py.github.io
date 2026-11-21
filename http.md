@@ -15,7 +15,7 @@ failsafe-py integrates with [httpx] through a transport, so any [policy composit
 pip install 'failsafe-py[httpx]'
 ```
 
-[httpx] is the only client supported. Its [`BaseTransport`][httpx-transport] is a near-exact analogue of Go's `http.RoundTripper`, and it has both sync and async transports — the same dual shape as the core. `requests` is sync-only with no cancellation story.
+[httpx] is the only client supported. It has both sync and async transports — the same dual shape as the core — and a transport hook that sees every request a client makes. `requests` is sync-only with no cancellation story.
 
 ## Clients
 
@@ -27,7 +27,6 @@ from failsafe.httpx import FailsafeTransport, retry_policy
 
 client = httpx.Client(transport=FailsafeTransport(retry_policy(max_retries=3), breaker))
 
-# Get with retries and circuit breaking
 client.get("https://example.com")
 ```
 
@@ -40,8 +39,6 @@ async_client = httpx.AsyncClient(transport=AsyncFailsafeTransport(retry_policy()
 ```
 
 Either transport wraps `httpx.HTTPTransport` by default; pass `transport=` to wrap something else, such as a mock in tests.
-
-There is no equivalent to Go's `failsafehttp.NewRequest`. Go offers both a `RoundTripper` and a `Request` wrapper because its `http.Client` can fail before the transport runs; httpx exposes the same hook for both cases, so one transport covers it.
 
 ## Retrying HTTP Failures
 
@@ -72,15 +69,15 @@ breaker = CircuitBreaker(handle=is_retryable)
 | Status 408, 429, and 5xx other than 501 | Unsupported scheme, invalid URL, too many redirects |
 
 {: .callout }
-> **408 is retryable here; failsafe-go retries only 429 and 5xx-except-501.** A 408 is the server saying it gave up waiting for the request, which is exactly the transient condition a retry addresses. Go's omission looks like an oversight: its own `Retry-After` handling covers 429 and 503 only.
+> **408 is treated as retryable.** It is the server saying it gave up waiting for the request, which is exactly the transient condition a retry addresses.
 
 ### Return Value
 
-`retry_policy()` defaults `return_last_failure=True`: exhausting the retries on a failing *response* yields that response rather than raising `RetriesExceeded`. A 500 is still an answer the caller may want to inspect, and Go returns it too.
+`retry_policy()` defaults `return_last_failure=True`: exhausting the retries on a failing *response* yields that response rather than raising `RetriesExceeded`. A 500 is still an answer the caller may want to inspect.
 
 ## Handling Retry-After
 
-`retry_after_delay` delays according to a response's `Retry-After` header, and works anywhere a callable delay is accepted — mirroring Go's `DelayFunc`:
+`retry_after_delay` delays according to a response's `Retry-After` header, and works anywhere a callable delay is accepted:
 
 ```python
 from failsafe import CircuitBreaker, Result
@@ -89,9 +86,9 @@ from failsafe.httpx import retry_after_delay
 breaker = CircuitBreaker(handle=Result(429), delay=retry_after_delay)
 ```
 
-Both header forms are honoured: delay-seconds and an HTTP-date, the latter converted to a delay from now. Go parses only the integer form and ignores a date, which is equally legal per RFC 9110. Only 429 and 503 responses are consulted, as in Go.
+Both header forms RFC 9110 allows are honoured: delay-seconds, and an HTTP-date converted to a delay from now. Only 429 and 503 responses are consulted.
 
-A missing, past, or malformed header yields `0.0`, where Go's `DelayFunc` returns `-1` to mean "fall back to the policy's own delay". A single `delay=` union has no second field to fall back to, and a negative delay would be a negative sleep.
+A missing, past, or malformed header yields `0.0`, so the request is retried without an extra wait.
 
 ## Error Handling
 
@@ -104,7 +101,7 @@ except httpx.HTTPError as e:
     original = e.__cause__      # CircuitBreakerOpen, BulkheadFull, ...
 ```
 
-Go returns its own error from the `RoundTripper`, but httpx callers catch `httpx.HTTPError`, and a bare `FailsafeError` escaping a transport would bypass every such block in existing code.
+httpx callers catch `httpx.HTTPError`, so a bare `FailsafeError` escaping a transport would slip past every such block in existing code.
 
 ## Request Bodies and Streaming
 
@@ -119,7 +116,7 @@ with client.stream("GET", url) as response:
 ```
 
 {: .callout }
-> Policies judge the **response headers**. A stream that fails midway has already been recorded as a success, matching Go, where the policy result is recorded before the body is read.
+> Policies judge the **response headers**, which arrive before the body is read. A stream that fails midway has already been recorded as a success.
 
 ## Cancellation and Timeouts
 
@@ -139,11 +136,5 @@ Both transports accept `clock=`, so a `Retry-After` test need not sleep for real
 ```python
 FailsafeTransport(retry_policy(), clock=fake_clock)
 ```
-
-## Propagating Priorities
-
-Not yet ported. Go's server-side helpers — `NewHandler`, `NewHandlerWithLevel`, and priority header decoding — are deferred, so there is currently no client-side header injection either.
-
-When they land they will keep Go's `X-Failsafe-Priority` and `X-Failsafe-Level` header names, so Python and Go services interoperate. In the meantime, [priority][execution-prioritization] is process-local via `priority_scope`.
 
 {% include common-links.html %}
