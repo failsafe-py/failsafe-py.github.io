@@ -26,7 +26,7 @@ The honest summary: if you need **only** retries, [tenacity] is mature, widely d
 - failsafe-py retries can be bounded system-wide by a [budget][budgets], which caps the share of in-flight work that retries may become. tenacity has no cross-call notion of retry load.
 - failsafe-py never retries `BaseException`. `asyncio.CancelledError` is terminal by construction, which is the most common correctness bug in this category.
 - failsafe-py jitter is attached to the delay, so it cannot be configured where it does nothing.
-- tenacity's `before`/`after`/`retry_error_callback` hooks are broadly equivalent to failsafe-py's [listeners][retry-listeners], with one difference: a raising listener here is logged, not propagated.
+- tenacity's `before`/`after`/`retry_error_callback` hooks are broadly equivalent to failsafe-py's [listeners][retry-listeners].
 
 tenacity also offers things failsafe-py does not: `@retry` with zero configuration, `reraise` semantics tuned over many years, and `retry_if_exception_message`. If retries are your whole problem, that maturity is worth something.
 

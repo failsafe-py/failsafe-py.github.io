@@ -163,15 +163,4 @@ retry = RetryPolicy(
 )
 ```
 
-Every listener keyword also accepts a list, and each can be added after construction — `add` returns the function, so it doubles as a decorator:
-
-```python
-RetryPolicy(on_retry=[log_retry, count_retry])
-
-@retry.on_retry.add
-def trace_retry(e): ...
-```
-
-A listener that raises is logged, not propagated: a metrics bug will not break a request.
-
 {% include common-links.html %}

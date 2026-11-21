@@ -44,24 +44,6 @@ RetryPolicy(
 
 Additional listeners are available per policy: `on_retry`, `on_state_change`, `on_limit_changed`, `on_full`, and so on. Each policy page documents its own.
 
-## Lists, Not Slots
-
-Listeners *append* rather than replace, and every keyword accepts a callable or a sequence of them:
-
-```python
-retry = RetryPolicy(on_retry=[log_retry, count_retry])
-```
-
-They can also be added after construction. `add` returns the function, so it doubles as a decorator:
-
-```python
-@retry.on_retry.add
-def trace_retry(e):
-    tracer.add_event("retry", attempt=e.attempts)
-```
-
-Listeners are called in registration order.
-
 ## Events
 
 | Event | Fields |
@@ -84,12 +66,6 @@ Listeners are for logging and metrics. If one genuinely needs to do I/O, hand th
 ```python
 RetryPolicy(on_retry=lambda e: asyncio.get_running_loop().create_task(report(e)))
 ```
-
-## Listener Exceptions Are Logged
-
-A listener that raises is logged and the execution continues: a bug in your metrics code must not break a production request.
-
-This means a silently broken listener stays broken. Check your logs for `failsafe` warnings if a listener seems not to be working.
 
 ## Alternative Execution Results
 
