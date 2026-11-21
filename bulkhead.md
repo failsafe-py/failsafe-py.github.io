@@ -40,7 +40,7 @@ bulkhead = Bulkhead(10, max_wait_time=1.0)
 
 Fairness is guaranteed: waiting executions are permitted in the order they arrive. Actual wait times vary with how busy the bulkhead is, and since executions block while waiting, a `max_wait_time` should be chosen carefully to avoid excessive blocking.
 
-Fairness holds **across drivers**. One `Bulkhead` instance serves sync threads and asyncio tasks from a single permit count and a single FIFO queue, so a task does not jump ahead of a thread that arrived first.
+Fairness holds **across sync and async callers**. One `Bulkhead` instance serves threads and asyncio tasks from a single permit count and a single FIFO queue, so a task does not jump ahead of a thread that arrived first.
 
 ### Event Listeners
 
@@ -72,7 +72,7 @@ if bulkhead.try_acquire_permit():
         bulkhead.release_permit()
 ```
 
-Blocking acquisition is available in both colours, on the same object and against the same permit count:
+Blocking acquisition has a sync and an async method, both drawing on the same permit count:
 
 ```python
 bulkhead.acquire_permit(timeout=1.0)

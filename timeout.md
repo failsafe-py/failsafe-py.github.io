@@ -26,12 +26,12 @@ Failsafe(Timeout(timedelta(seconds=10))).call(connect)
 
 When the limit elapses, the execution and any policies composed *inside* the timeout fail with `TimeoutExceeded`.
 
-How the attempt itself is affected depends on the driver:
+How the attempt itself is affected:
 
 | | Behaviour |
 |---|---|
 | `AsyncFailsafe` | The attempt is interrupted, via [`asyncio.timeout`][asyncio-timeout]. `CancelledError` is raised inside the coroutine and converted to `TimeoutExceeded` at the boundary |
-| `Failsafe` | Cooperative by default. Python cannot interrupt a running call, so the limit is enforced between instructions |
+| `Failsafe` | Cooperative by default. Python cannot interrupt a running call, so the limit is checked between attempts |
 | `Failsafe`, `interrupt=True` | The attempt runs on a worker thread and the caller is freed on time |
 
 ### Cooperative Timeouts in Sync Mode

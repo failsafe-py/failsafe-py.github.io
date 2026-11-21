@@ -145,7 +145,7 @@ if breaker.try_acquire_permit():
 
 A `CircuitBreaker` can and *should* be shared across code that accesses a common dependency. This ensures that when the breaker opens, every execution that shares that dependency is blocked until the circuit closes again. If multiple connections or requests reach the same external server, they should all go through the same breaker. Construct it at module or DI scope — see [policy sharing][policy-sharing].
 
-Sharing is safe across threads *and* across drivers: a breaker tripped by a `Failsafe` call is seen open by an `AsyncFailsafe` call built from the same object.
+Sharing is safe across threads *and* across sync and async callers: a breaker tripped by a `Failsafe` call is seen open by an `AsyncFailsafe` call built from the same object.
 
 ### Composing Circuit Breakers
 
@@ -164,9 +164,5 @@ Failsafe(CircuitBreaker(handle=ConnectionError), bulkhead)
 Time based breakers use a sliding window to aggregate results. As time progresses and newer results are recorded, older ones are discarded. To stay space and time efficient, results are grouped into 10 time slices, each 1/10th of the configured period; when a slice falls outside the period its results are discarded.
 
 Buckets expire on **write** only, so a window nobody has written to still reports its last totals rather than silently draining as time passes.
-
-### Performance
-
-The internal implementation uses a single circular structure to record results. Recording an execution and evaluating a threshold is _O(1)_, regardless of the thresholding capacity. The state is guarded by a lock held for microseconds, which is what lets one instance serve sync and async callers at once.
 
 {% include common-links.html %}

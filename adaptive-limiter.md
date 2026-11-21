@@ -116,9 +116,6 @@ AdaptiveLimiter(baseline_window_age=10)
 
 Larger baseline windows make the limiter slower to adjust to changes in baseline load.
 
-{: .callout }
-> Quantiles are **exact**, computed over a sorted window rather than estimated from a sketch. The window resets on every limit update, so it holds 50–500 samples — a range where a t-digest carries 0.4–2.7% error and a sorted window carries none.
-
 ### Throughput Correlation
 
 Changes in execution times are a good indicator of overload, but not a perfect one. As a second indicator, limiters track the *correlation* between inflight executions and throughput. If inflight executions are increasing but throughput is flat or falling, the system is likely overloaded and the limit is decreased.
@@ -193,7 +190,7 @@ else:
     permit.record()    # record the duration, release the permit
 ```
 
-Both colours work against the same state, and either can take a priority:
+There is a sync and an async method, and either can take a priority:
 
 ```python
 permit = await limiter.acquire_permit_async(priority=Priority.HIGH)
@@ -215,14 +212,6 @@ Adaptive limiters can be shared across an entire service, or separate limiters c
 When recent execution times change relative to the baseline, it could mean the system is overloaded — or it could mean the *kind* of work has shifted and the baseline needs to move. A system that was processing fast requests and is now handling slow ones is not necessarily overloaded.
 
 The limiter distinguishes these *experimentally*: it lowers the limit and observes. As the limit falls, recent and baseline latencies eventually equalize and the limit is raised again. In a true overload, recent times spike again and the limit adjusts down in response. Otherwise the limit keeps increasing, with a new baseline having been set.
-
-### The Semaphore Follows the Limit
-
-Changing the limit resizes the underlying semaphore, not just a stored number. A shrinking semaphore also rechecks capacity before waking a waiter: handing a released permit straight to the next waiter is correct only at a fixed size, and permanently over-admits after a shrink — which is exactly what this limiter does on every decrease.
-
-## Thanks
-
-Thanks to Jakob Holdgaard Thomsen, Vladimir Gavrilenko, and Jesper Lindstrøm Nielsen, whose insights and feedback shaped this limiter's design.
 
 [cinnamon]: https://www.uber.com/blog/cinnamon-using-century-old-tech-to-build-a-mean-load-shedder/
 [concurrency-limits]: https://github.com/Netflix/concurrency-limits

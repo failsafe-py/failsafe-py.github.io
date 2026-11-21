@@ -15,7 +15,7 @@ Rate limiters are [load limiters][load-limiting] that limit the rate of executio
 
 When executions exceed the configured max per period, further executions either fail with `RateLimitExceeded` or wait until permitted.
 
-Both flavours reserve permits by pure arithmetic: a reservation returns the time the caller must wait, and the waiting happens in the driver. A reserved permit is therefore never lost, and the same instance can serve sync and async callers.
+Both reserve permits by arithmetic: a reservation returns the time the caller must wait, so a reserved permit is never lost and the same instance can serve sync and async callers.
 
 ## Smooth Rate Limiter
 
@@ -78,7 +78,7 @@ if limiter.try_acquire_permit():
     do_something()
 ```
 
-Blocking acquisition is available in both colours against the same state:
+Blocking acquisition has a sync and an async method, both against the same limiter:
 
 ```python
 limiter.acquire_permit()
@@ -107,9 +107,5 @@ limiter.acquire_permit(permits=5)
 A `RateLimiter` can and *should* be shared across code that accesses a common dependency, so every execution reaching that dependency counts against the same limit. Construct it at module or DI scope — see [policy sharing][policy-sharing].
 
 For limiting *load* rather than *rate*, consider a [bulkhead][bulkheads], which limits concurrency directly, or an [adaptive limiter][adaptive-limiters], which discovers the limit. [Little's Law][littles-law] explains why: a fixed request rate does not fix concurrency when response times change.
-
-## Performance
-
-The implementation is _O(1)_ in time and space. The reservation arithmetic runs in integer nanoseconds rather than float seconds, because the maths leans on exact integer division — in floats, `0.3 / 0.1` lands just under 3 and silently drops a period.
 
 {% include common-links.html %}

@@ -9,7 +9,7 @@ title: Cancellation and Deadlines
 1. TOC
 {:toc}
 
-The two drivers differ here more than anywhere else. Async mode has real cancellation; sync mode has deadlines only.
+`Failsafe` and `AsyncFailsafe` differ here more than anywhere else. Async has real cancellation; sync has deadlines only.
 
 | | Async | Sync |
 |---|---|---|
@@ -44,7 +44,7 @@ def connect(host):
     return socket.create_connection(host, timeout=current_execution().remaining())
 ```
 
-`remaining()` returns the seconds left before the nearest deadline — from a `Timeout`, a retry `max_duration`, or both — or `None` when nothing has set one. Between attempts the driver enforces the deadline itself; *within* an attempt, cooperation is yours, which is what the snippet above does.
+`remaining()` returns the seconds left before the nearest deadline — from a `Timeout`, a retry `max_duration`, or both — or `None` when nothing has set one. The deadline is enforced between attempts; *within* an attempt, cooperation is yours, which is what the snippet above does.
 
 ### Why There Is No Sync Cancellation
 

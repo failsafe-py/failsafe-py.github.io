@@ -59,7 +59,7 @@ All are frozen dataclasses. `e.result` is typed `Any`, because the result type i
 
 ## Listeners Are Sync
 
-Listeners are plain functions in both drivers. A coroutine listener cannot be awaited from the sync driver, and accepting one in only half the API would leak function colouring into the event model.
+Listeners are plain functions, not coroutines. A coroutine listener cannot be awaited from sync code, so neither driver accepts one.
 
 Listeners are for logging and metrics. If one genuinely needs to do I/O, hand the work off:
 

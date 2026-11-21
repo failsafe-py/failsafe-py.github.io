@@ -117,7 +117,7 @@ if throttler.try_acquire_permit():
 
 `record_result(outcome)` records an `Outcome` judged by the throttler's own `handle` condition, which is what the executor uses.
 
-A raising variant is available in both colours:
+A raising variant is available for both sync and async callers:
 
 ```python
 throttler.acquire_permit()
@@ -134,7 +134,7 @@ When [composing policies][policy-composition], it is recommended not to have a t
 
 ## Additional Details
 
-The window is bucketed at 20 buckets over the thresholding period, and buckets expire on **write** only, so a quiet window reports its last totals rather than draining. The rejection rate formula pads the execution count by one, which keeps the rate strictly below 1 at low counts so that a handful of failures cannot wedge a resource shut.
+Results age out gradually over the thresholding period, and a quiet window reports its last totals rather than draining to zero. The rejection rate stays strictly below 1 at low execution counts, so a handful of failures cannot wedge a resource shut.
 
 [throttling]: https://sre.google/sre-book/handling-overload/#client-side-throttling-a7sYUg
 

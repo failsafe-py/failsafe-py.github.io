@@ -126,7 +126,7 @@ That said, it really depends on how the policies are being used, and different c
 
 ## Policy Sharing
 
-All policies are safe to share across executions, across threads, and across both drivers. Some policies such as [Retry][retry] are stateless; others such as [Circuit Breaker][circuit-breakers], [Adaptive Limiter][adaptive-limiters], [Adaptive Throttler][adaptive-throttlers], [Rate Limiter][rate-limiters] and [Bulkhead][bulkheads] are stateful and are *meant* to be shared across executions that reach the same resource.
+All policies are safe to share across executions, across threads, and between `Failsafe` and `AsyncFailsafe`. Some policies such as [Retry][retry] are stateless; others such as [Circuit Breaker][circuit-breakers], [Adaptive Limiter][adaptive-limiters], [Adaptive Throttler][adaptive-throttlers], [Rate Limiter][rate-limiters] and [Bulkhead][bulkheads] are stateful and are *meant* to be shared across executions that reach the same resource.
 
 A stateful policy models the health of a **backend**, not of a call site. Build the composition once, at module or DI scope, and reuse it:
 

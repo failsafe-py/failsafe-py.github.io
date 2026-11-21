@@ -9,7 +9,7 @@ title: Async Execution
 1. TOC
 {:toc}
 
-failsafe-py has two drivers over one policy engine: `Failsafe` for blocking code and `AsyncFailsafe` for [asyncio]. They take the same policy objects and behave identically, differing only in how a delay, a permit wait, or a deadline is serviced.
+`Failsafe` runs blocking code; `AsyncFailsafe` runs [asyncio] coroutines. They take the same policy objects and behave identically, differing only in how a delay or a permit wait is performed.
 
 ```python
 from failsafe import AsyncFailsafe, RetryPolicy
@@ -50,7 +50,7 @@ async with asyncio.TaskGroup() as tg:
 
 ## Sharing Policies Between Both Worlds
 
-A policy object carries its own state and is safe to use from both drivers at once. One `CircuitBreaker` guarding a backend sees every caller, whether that caller is a thread or a task:
+A policy object carries its own state and is safe to use from `Failsafe` and `AsyncFailsafe` at once. One `CircuitBreaker` guarding a backend sees every caller, whether that caller is a thread or a task:
 
 ```python
 breaker = CircuitBreaker(failure_threshold=5)
@@ -86,7 +86,7 @@ Everything else — retries, circuit breaking, rate limiting, bulkheads, adaptiv
 
 ## Listeners Are Sync
 
-[Event listeners][event-listeners] are plain functions in both drivers. A coroutine listener cannot be awaited from the sync driver, and accepting one in only half the API would leak function colouring into the event model. Listeners are for logging and metrics; if one needs to do I/O, hand the work to a task:
+[Event listeners][event-listeners] are plain functions, not coroutines — a coroutine listener cannot be awaited from sync code. Listeners are for logging and metrics; if one needs to do I/O, hand the work to a task:
 
 ```python
 retry = RetryPolicy(on_retry=lambda e: asyncio.get_running_loop().create_task(report(e)))
