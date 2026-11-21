@@ -88,7 +88,7 @@ CircuitBreaker(delay=failsafe.httpx.retry_after_delay)
 While open, you can read the remaining delay, so callers know how long to wait:
 
 ```python
-breaker.remaining_delay
+breaker.remaining_delay()
 ```
 
 ### Closing
@@ -117,11 +117,11 @@ CircuitBreaker(
 
 ### Metrics
 
-A `CircuitBreaker` exposes metrics for the state it is in: `state`, `is_open`, `is_closed`, `is_half_open`, `executions`, `successes`, `failures`, `success_rate`, `failure_rate`, and `remaining_delay`.
+A `CircuitBreaker` exposes metrics for the state it is in. Properties: `state`, `is_open`, `is_closed`, `is_half_open`, `executions`, `successes`, `failures`. Methods, because each takes the breaker's lock to compute: `success_rate()`, `failure_rate()`, `remaining_delay()`.
 
 ```python
 if breaker.is_open:
-    metrics.gauge("breaker.remaining", breaker.remaining_delay)
+    metrics.gauge("breaker.remaining", breaker.remaining_delay())
 ```
 
 ## Standalone Usage
