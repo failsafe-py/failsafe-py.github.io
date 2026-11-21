@@ -132,10 +132,6 @@ An `AdaptiveThrottler` can and *should* be shared across code that accesses a co
 
 When [composing policies][policy-composition], it is recommended not to have a throttler handle exceptions from other policies, such as `BulkheadFull` or `RateLimitExceeded`. If an execution is rejected by some policy, there is no need for a throttler to count it too. Note that the default `handle=Exception` does catch those, so narrow it when composing a throttler outside a limiting policy.
 
-## Additional Details
-
-Results age out gradually over the thresholding period, and a quiet window reports its last totals rather than draining to zero. The rejection rate stays strictly below 1 at low execution counts, so a handful of failures cannot wedge a resource shut.
-
 [throttling]: https://sre.google/sre-book/handling-overload/#client-side-throttling-a7sYUg
 
 {% include common-links.html %}

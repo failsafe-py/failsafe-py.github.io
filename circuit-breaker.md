@@ -157,12 +157,4 @@ Note that the default `handle=Exception` *does* catch those, since they are ordi
 Failsafe(CircuitBreaker(handle=ConnectionError), bulkhead)
 ```
 
-## Additional Details
-
-### Time Based Resolution
-
-Time based breakers use a sliding window to aggregate results. As time progresses and newer results are recorded, older ones are discarded. To stay space and time efficient, results are grouped into 10 time slices, each 1/10th of the configured period; when a slice falls outside the period its results are discarded.
-
-Buckets expire on **write** only, so a window nobody has written to still reports its last totals rather than silently draining as time passes.
-
 {% include common-links.html %}

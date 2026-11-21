@@ -205,9 +205,7 @@ limiter.can_acquire_permit(priority=Priority.LOW)
 
 Adaptive limiters can be shared across an entire service, or separate limiters can protect different workloads that use different resources or downstream services. When using multiple limiters, use a shared [prioritizer][execution-prioritization] so the rejection threshold accounts for their combined queueing.
 
-## Additional Details
-
-### Determining Overload
+## Determining Overload
 
 When recent execution times change relative to the baseline, it could mean the system is overloaded — or it could mean the *kind* of work has shifted and the baseline needs to move. A system that was processing fast requests and is now handling slow ones is not necessarily overloaded.
 
