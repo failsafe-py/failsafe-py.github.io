@@ -1,10 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 650 650" width="650" height="650">
   <!-- The failsafe mark: three stacked bars, rounded outside, square inside.
-       failsafe and failsafe-go share this shape and differ only in palette;
-       failsafe-py is the Python-blue/yellow variation. -->
+       failsafe and failsafe-go share this shape and differ only in palette.
+       Colours are the four official python.org logo gradient stops:
+       #306998 / #5A9FD4 (blue) and #FFD43B / #FFE873 (yellow). -->
   <path fill="#306998" fill-rule="evenodd"
         d="M83 30h485a24 24 0 0 1 24 24v107a24 24 0 0 1-24 24H83a24 24 0 0 1-24-24V54a24 24 0 0 1 24-24zm23 47v61h439V77H106z"/>
-  <path fill="#4B8BBE" fill-rule="evenodd"
+  <path fill="#5A9FD4" fill-rule="evenodd"
         d="M83 250h337a24 24 0 0 1 24 24v107a24 24 0 0 1-24 24H83a24 24 0 0 1-24-24V274a24 24 0 0 1 24-24zm23 47v61h291v-61H106z"/>
   <path fill="#FFD43B" fill-rule="evenodd"
         d="M83 464h168a24 24 0 0 1 24 24v107a24 24 0 0 1-24 24H83a24 24 0 0 1-24-24V488a24 24 0 0 1 24-24zm23 47v61h122v-61H106z"/>
