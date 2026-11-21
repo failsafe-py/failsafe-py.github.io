@@ -13,6 +13,7 @@ exclude:
   - vendor
   - Rakefile
   - README.md
+  - AGENTS.md
 markdown: kramdown
 highlighter: none
 search_enabled: true
