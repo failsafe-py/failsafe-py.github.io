@@ -50,7 +50,7 @@ async with asyncio.TaskGroup() as tg:
 
 ## Sharing Policies Between Both Worlds
 
-A policy object carries its own state and is safe to use from `Failsafe` and `AsyncFailsafe` at once. One `CircuitBreaker` guarding a backend sees every caller, whether that caller is a thread or a task:
+A policy can be used from `Failsafe` and `AsyncFailsafe` at the same time:
 
 ```python
 breaker = CircuitBreaker(failure_threshold=5)
@@ -59,30 +59,11 @@ sync_payments = Failsafe(retry, breaker)
 async_payments = AsyncFailsafe(retry, breaker)
 ```
 
-A failure recorded through `sync_payments` opens the breaker for `async_payments` too. The same holds for a [`Bulkhead`][bulkheads], [`RateLimiter`][rate-limiters] or [`AdaptiveLimiter`][adaptive-limiters]: one permit count serves both, with waiters admitted in arrival order regardless of which driver they came from.
-
-This matters wherever a sync worker and an async service talk to the same backend, and it is the reason the library is built around one engine rather than two implementations.
-
-## Cancellation
-
-Async cancellation is ordinary asyncio cancellation. Cancelling the task cancels the in-flight attempt, and [`CancelledError`][cancelled-error] propagates out untouched — it is never treated as a retryable failure, never swallowed by a [`Fallback`][fallbacks], and never recorded by a breaker.
-
-```python
-task = asyncio.create_task(api.call(fetch, url))
-task.cancel()
-
-with contextlib.suppress(asyncio.CancelledError):
-    await task
-```
-
-Sync mode has deadlines but no externally-triggered cancellation. See [cancellation and deadlines][execution-cancellation].
+A failure recorded through `sync_payments` opens the breaker for `async_payments` too, and a [`Bulkhead`][bulkheads], [`RateLimiter`][rate-limiters] or [`AdaptiveLimiter`][adaptive-limiters] shares one permit count across both.
 
 ## What Only Works in Async Mode
 
-- [Hedging][hedge] requires cancelling the losing attempts, which sync Python cannot do. `HedgePolicy` under `Failsafe` raises `NotImplementedError`.
-- [`Timeout`][timeouts] interrupts the attempt itself, via [`asyncio.timeout`][asyncio-timeout]. In sync mode a timeout is cooperative unless `interrupt=True`, which frees the caller but leaves the abandoned thread running.
-
-Everything else — retries, circuit breaking, rate limiting, bulkheads, adaptive limiting, throttling, fallbacks, caching, budgets — is identical in both modes.
+[Hedging][hedge] requires cancelling the losing attempts, which sync Python cannot do, so `HedgePolicy` under `Failsafe` raises `NotImplementedError`. Every other policy behaves identically in both modes.
 
 ## Listeners Are Sync
 

@@ -71,7 +71,7 @@ go 349w → py 676w (+327)
 
 ### NEW · `# Comparisons` (intro) · 0w → 73w
 
-VERDICT: ?
+VERDICT: cut
 
 _Go page has no prose here._
 
@@ -82,7 +82,7 @@ py:
 
 ### NEW · `### failsafe-py vs tenacity` · 0w → 226w
 
-VERDICT: ?
+VERDICT: trim
 
 py:
 
@@ -91,7 +91,7 @@ py:
 
 ### NEW · `### failsafe-py vs backoff` · 0w → 86w
 
-VERDICT: ?
+VERDICT: keep
 
 py:
 
@@ -100,7 +100,7 @@ py:
 
 ### NEW · `### failsafe-py vs pybreaker` · 0w → 152w
 
-VERDICT: ?
+VERDICT: remove "a port of Michael Nygard's pattern with a listener model". trim. Focus on missing adaptive throttler / impls.
 
 py:
 
@@ -109,7 +109,7 @@ py:
 
 ### NEW · `### failsafe-py vs circuitbreaker` · 0w → 65w
 
-VERDICT: ?
+VERDICT: Focus on missing adaptive throttler / impls.
 
 py:
 
@@ -118,7 +118,7 @@ py:
 
 ### NEW · `## Load Limiting` · 0w → 58w
 
-VERDICT: ?
+VERDICT: keep
 
 py:
 
@@ -127,7 +127,7 @@ py:
 
 ### NEW · `## Hedging` · 0w → 16w
 
-VERDICT: ?
+VERDICT: keep
 
 py:
 
@@ -136,7 +136,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: yes having removed them is fine
 
 - `### Failsafe-go vs cenkalti/backoff`
 - `### Failsafe-go vs gobreaker`
@@ -149,65 +149,7 @@ VERDICT: ?
 go 87w → py 397w (+310)
 
 
-### NEW · `## The Policy Protocol` · 0w → 80w
-
-VERDICT: ?
-
-py:
-
-> A policy wraps an inner step and returns a new one: A `Step` is a callable taking the [`Execution`][execution-info] and returning a **generator** that yields *instructions* and finally returns an `Outcome`. The generator is the policy's logic; the driver decides how to service what it yields. This is why the same policy works in both sync and async mode: a policy never sleeps, never blocks, and never spawns anything. It yields `Sleep(1.0)` and the driver calls `time.sleep` or `await asyncio.sleep`.
-
-
-### NEW · `## A Minimal Policy` · 0w → 35w
-
-VERDICT: ?
-
-py:
-
-> A policy that logs each attempt and passes everything through: `yield from inner(ex)` is how policies nest: it forwards every instruction the inner policies yield out to the driver, and gives back their final `Outcome`.
-
-
-### NEW · `## Instructions` · 0w → 64w
-
-VERDICT: ?
-
-py:
-
-> | Instruction | Serviced as | |---|---| | `Invoke()` | Call the user function, capturing an `Outcome`. Catches `Exception`, never `BaseException` | | `Sleep(seconds)` | `time.sleep` or `await asyncio.sleep`, interruptible by cancellation | | `Acquire(semaphore, timeout)` | A blocking or awaiting permit acquisition against one shared semaphore | | `Race(inner, seconds, interrupt)` | Run `inner` under a deadline | A retry policy is roughly:
-
-
-### NEW · `## Rules` · 0w → 108w
-
-VERDICT: ?
-
-py:
-
-> **Release in `finally`.** A driver may abandon an execution by closing the generator — a deadline elapsing, a hedge losing. Anything acquired must be released on the way out: **Per-execution state belongs in the generator.** Policies are shared across concurrent executions, so anything that varies per execution — a backoff's current delay, an attempt counter — lives in the generator's local scope. Anything on `self` is shared and needs a lock. **Never catch `BaseException`.** `CancelledError` must propagate. **Failure conditions, if you have them**, should reuse `Condition` so your policy's `handle=` behaves like everyone else's, including the rule that a result-only condition does not replace the default error handling.
-
-
-### NEW · `## Reference Implementations` · 0w → 42w
-
-VERDICT: ?
-
-py:
-
-> The built-in policies are the best reference, and they are small. [`Fallback`][fallbacks] is about 30 lines of logic and shows the minimum shape; [`RetryPolicy`][retry] shows delays and listeners; [`Bulkhead`][bulkheads] shows permit handling with `finally`; [`CircuitBreaker`][circuit-breakers] shows shared locked state. See the [source][github].
-
-
-### NEW · `## Private API` · 0w → 53w
-
-VERDICT: ?
-
-py:
-
-> `Step`, `Outcome`, `Invoke`, `Sleep`, `Acquire` and `Race` live in `failsafe._core` and are not exported from the package root. They are stable enough to build against — every built-in policy uses them — but they are not covered by the public API's compatibility promise. If you ship a policy publicly, pin a version range.
-
-
-### DROPPED · sections in the Go page with no py counterpart
-
-VERDICT: ?
-
-- `## Custom Policies`
+VERDICT: actually let's remove that page altogether
 
 
 ## `execution-cancellation.md`
@@ -217,7 +159,7 @@ go 123w → py 422w (+299)
 
 ### NEW · `# Cancellation and Deadlines` · 0w → 81w
 
-VERDICT: ?
+VERDICT: are you sure that this is different? In sync python there's no cancellation and only deadlines, so this generally makes sense.
 
 py:
 
@@ -226,7 +168,7 @@ py:
 
 ### NEW · `## Async Cancellation` · 0w → 90w
 
-VERDICT: ?
+VERDICT: trim
 
 py:
 
@@ -235,7 +177,7 @@ py:
 
 ### NEW · `## Deadlines in Sync Mode` · 0w → 58w
 
-VERDICT: ?
+VERDICT: trim
 
 py:
 
@@ -244,7 +186,7 @@ py:
 
 ### NEW · `### Why There Is No Sync Cancellation` · 0w → 72w
 
-VERDICT: ?
+VERDICT: cut -- this is actually obvious
 
 py:
 
@@ -253,7 +195,7 @@ py:
 
 ### NEW · `### Interrupting Timeouts` · 0w → 56w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -262,7 +204,7 @@ py:
 
 ### NEW · `## Propagating Cancellation Downstream` · 0w → 26w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -271,7 +213,7 @@ py:
 
 ### NEW · `## Timeout vs Cancellation` · 0w → 39w
 
-VERDICT: ?
+VERDICT: keep
 
 py:
 
@@ -280,7 +222,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `# Execution Cancellation`
 - `## Propagating Cancellations`
@@ -295,7 +237,7 @@ go 70w → py 331w (+261)
 
 ### NEW · `## It Is Just a Coroutine` · 0w → 27w
 
-VERDICT: ?
+VERDICT: keep
 
 py:
 
@@ -304,7 +246,7 @@ py:
 
 ### NEW · `## Sharing Policies Between Both Worlds` · 0w → 104w
 
-VERDICT: ?
+VERDICT: trim: the "Sees every callers" is useless
 
 py:
 
@@ -313,7 +255,7 @@ py:
 
 ### NEW · `## Cancellation` · 0w → 50w
 
-VERDICT: ?
+VERDICT: trim -- we already said that above
 
 py:
 
@@ -322,7 +264,7 @@ py:
 
 ### NEW · `## What Only Works in Async Mode` · 0w → 65w
 
-VERDICT: ?
+VERDICT: trim: I don't think that the "timeout" mention is relevant here
 
 py:
 
@@ -331,7 +273,7 @@ py:
 
 ### NEW · `## Listeners Are Sync` · 0w → 35w
 
-VERDICT: ?
+VERDICT: keep
 
 py:
 
@@ -345,7 +287,7 @@ go 222w → py 475w (+253)
 
 ### GROWN · `# Hedge` · 55w → 107w
 
-VERDICT: ?
+VERDICT: trim and follow Go style
 
 <details><summary>go</summary>
 
@@ -360,7 +302,7 @@ py:
 
 ### NEW · `## Async Only` · 0w → 47w
 
-VERDICT: ?
+VERDICT: trim
 
 py:
 
@@ -369,7 +311,7 @@ py:
 
 ### GROWN · `### Dynamic Delay` · 66w → 128w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -384,7 +326,7 @@ py:
 
 ### GROWN · `### Cancellation` · 31w → 50w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -399,7 +341,7 @@ py:
 
 ### GROWN · `### Budgets` · 16w → 60w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -414,7 +356,7 @@ py:
 
 ### NEW · `## Execution Info` · 0w → 34w
 
-VERDICT: ?
+VERDICT: trim
 
 py:
 
@@ -428,7 +370,7 @@ go 449w → py 678w (+229)
 
 ### NEW · `## Calibration Is Yours to Schedule` · 0w → 89w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -437,7 +379,7 @@ py:
 
 ### GROWN · `## Prioritized Execution` · 30w → 53w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -452,7 +394,7 @@ py:
 
 ### GROWN · `## Priorities vs Levels` · 40w → 77w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -467,7 +409,7 @@ py:
 
 ### NEW · `### Metrics` · 0w → 35w
 
-VERDICT: ?
+VERDICT: keep
 
 py:
 
@@ -476,7 +418,7 @@ py:
 
 ### NEW · `### HTTP Support` · 0w → 18w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -485,7 +427,7 @@ py:
 
 ### GROWN · `## Best Practices` · 37w → 80w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -500,7 +442,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `### Logging and Metrics`
 - `### HTTP and gRPC Support`
@@ -513,7 +455,7 @@ go 86w → py 295w (+209)
 
 ### NEW · `## What It Carries` · 0w → 161w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -522,7 +464,7 @@ py:
 
 ### NEW · `## Depending on a Previous Attempt` · 0w → 21w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -531,7 +473,7 @@ py:
 
 ### NEW · `## Deadlines` · 0w → 34w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -540,7 +482,7 @@ py:
 
 ### NEW · `## In Listeners` · 0w → 16w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -549,7 +491,7 @@ py:
 
 ### NEW · `## Async` · 0w → 18w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -558,7 +500,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `## Context`
 
@@ -570,7 +512,7 @@ go 193w → py 387w (+194)
 
 ### GROWN · `## How It Works` · 28w → 89w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -585,7 +527,7 @@ py:
 
 ### NEW · `### Cooperative Timeouts in Sync Mode` · 0w → 58w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -594,7 +536,7 @@ py:
 
 ### NEW · `### Interrupting Timeouts` · 0w → 71w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -603,7 +545,7 @@ py:
 
 ### NEW · `## Timeout vs Cancellation` · 0w → 79w
 
-VERDICT: ?
+VERDICT: I feel like you're repeating this in many places. This really should only me mentioned once on the timeout page (short), and nowhere else.
 
 py:
 
@@ -612,7 +554,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `## Timeout vs Context`
 
@@ -624,7 +566,7 @@ go 667w → py 853w (+186)
 
 ### NEW · `### Why `Result(...)` Is Explicit` · 0w → 32w
 
-VERDICT: ?
+VERDICT: keep (but add me a TODO, I will rewrite the library later)
 
 py:
 
@@ -633,7 +575,7 @@ py:
 
 ### NEW · `### Results Do Not Replace Error Handling` · 0w → 30w
 
-VERDICT: ?
+VERDICT: keep, add a TODO for me to inspect
 
 py:
 
@@ -642,7 +584,7 @@ py:
 
 ### NEW · `### Exception Chains` · 0w → 53w
 
-VERDICT: ?
+VERDICT: keep, add a TODO
 
 py:
 
@@ -651,7 +593,7 @@ py:
 
 ### GROWN · `## Policy Composition` · 65w → 110w
 
-VERDICT: ?
+VERDICT: trim, the "there is no method" is Go stuff you dont need
 
 <details><summary>go</summary>
 
@@ -666,7 +608,7 @@ py:
 
 ### NEW · `### Composition and Exception Handling` · 0w → 60w
 
-VERDICT: ?
+VERDICT: keep, add a TODO
 
 py:
 
@@ -675,7 +617,7 @@ py:
 
 ### GROWN · `## Policy Sharing` · 46w → 76w
 
-VERDICT: ?
+VERDICT: trim, (and omit or explicit DI i dont know what that is)
 
 <details><summary>go</summary>
 
@@ -690,7 +632,7 @@ py:
 
 ### NEW · `### The Fragmentation Hazard` · 0w → 75w
 
-VERDICT: ?
+VERDICT: trim and retitle "decorator pitfall". remove "This is the mistake Python's decorator syntax makes easy", remove type checker mentions
 
 py:
 
@@ -699,7 +641,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `### Composition and Error Handling`
 - `### Mixing Result Types`
@@ -712,7 +654,7 @@ go 342w → py 495w (+153)
 
 ### GROWN · `# HTTP Support` · 10w → 58w
 
-VERDICT: ?
+VERDICT: trim and follow Go style. remove "dual shape" mentions. Why is `requests` mentioned?
 
 <details><summary>go</summary>
 
@@ -727,7 +669,7 @@ py:
 
 ### NEW · `### What Counts as Retryable` · 0w → 86w
 
-VERDICT: ?
+VERDICT: add a TODO for me to inspect
 
 py:
 
@@ -736,7 +678,7 @@ py:
 
 ### NEW · `### Return Value` · 0w → 29w
 
-VERDICT: ?
+VERDICT: clarify, i'm not following
 
 py:
 
@@ -745,7 +687,7 @@ py:
 
 ### GROWN · `## Handling Retry-After` · 22w → 58w
 
-VERDICT: ?
+VERDICT: trim, follow Go style
 
 <details><summary>go</summary>
 
@@ -760,7 +702,7 @@ py:
 
 ### NEW · `## Error Handling` · 0w → 45w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -769,7 +711,7 @@ py:
 
 ### NEW · `## Request Bodies and Streaming` · 0w → 80w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -778,7 +720,7 @@ py:
 
 ### NEW · `## Cancellation and Timeouts` · 0w → 55w
 
-VERDICT: ?
+VERDICT: cut, that is already covered elsewhere
 
 py:
 
@@ -787,7 +729,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `## Servers`
 - `## Propagating Priorities`
@@ -801,7 +743,7 @@ go 108w → py 261w (+153)
 
 ### NEW · `## Result Types Are Inferred per Call` · 0w → 91w
 
-VERDICT: ?
+VERDICT: add a TODO for me
 
 py:
 
@@ -810,7 +752,7 @@ py:
 
 ### NEW · `## Decorated Functions Keep Their Signature` · 0w → 12w
 
-VERDICT: ?
+VERDICT: add a TODO for me
 
 py:
 

@@ -36,9 +36,13 @@ The same `Condition` type is accepted wherever a policy asks "does this outcome 
 
 ### Why `Result(...)` Is Explicit
 
+<!-- TODO(nicdumz): revisit once the library is rewritten — may not need the explicit wrapper. -->
+
 `handle=None` would be ambiguous between "no condition configured" and "treat a returned `None` as a failure". Wrapping the value disambiguates it, which is what keeps `handle` from splitting into `handle=` and `handle_result=`.
 
 ### Results Do Not Replace Error Handling
+
+<!-- TODO(nicdumz): inspect — confirm this is the behaviour you want to keep. -->
 
 A result-only condition **adds to** the default rather than replacing it. This policy retries both a `None` result and any exception:
 
@@ -49,6 +53,8 @@ RetryPolicy(handle=Result(None))
 Only a condition that handles exceptions replaces the default.
 
 ### Exception Chains
+
+<!-- TODO(nicdumz): inspect — `__cause__` walking depth and ExceptionGroup handling. -->
 
 An exception matches if it is an instance of a handled type, or if any exception in its `__cause__` chain is. The chain is walked depth-limited and only through `__cause__` — explicit chaining — because walking `__context__` would match exceptions raised incidentally while handling something else. For an `ExceptionGroup`, any matching leaf matches.
 
@@ -66,15 +72,13 @@ This results in the following composition when executing `fn` and handling its r
 Fallback(RetryPolicy(CircuitBreaker(Timeout(fn))))
 ```
 
-A composition is fixed at construction. To add a layer, build a new one from the same policy objects — which is safe, because policies are shareable:
+A composition is fixed at construction. To add a layer, build a new one from the same policy objects:
 
 ```python
 base_policies = (fallback, retry)
 plain = Failsafe(*base_policies)
 guarded = Failsafe(*base_policies, breaker)
 ```
-
-Both executors share `fallback` and `retry`, and `guarded` additionally applies `breaker`. There is no method that extends an executor in place, so a composition you hand to someone else cannot change under them.
 
 ### Executing a Policy Composition
 
@@ -99,6 +103,8 @@ Consider an execution of the following policy composition:
 - `call` returns the final result, or raises
 
 ### Composition and Exception Handling
+
+<!-- TODO(nicdumz): inspect. -->
 
 While policies handle all `Exception` instances by default, it is common to configure a policy to handle something more specific, as [described above](#failure-handling):
 
@@ -128,7 +134,7 @@ That said, it really depends on how the policies are being used, and different c
 
 All policies are safe to share across executions, across threads, and between `Failsafe` and `AsyncFailsafe`. Some policies such as [Retry][retry] are stateless; others such as [Circuit Breaker][circuit-breakers], [Adaptive Limiter][adaptive-limiters], [Adaptive Throttler][adaptive-throttlers], [Rate Limiter][rate-limiters] and [Bulkhead][bulkheads] are stateful and are *meant* to be shared across executions that reach the same resource.
 
-A stateful policy models the health of a **backend**, not of a call site. Build the composition once, at module or DI scope, and reuse it:
+A stateful policy models the health of a resource, not of a call site. Build the composition once and reuse it:
 
 ```python
 payments = Failsafe(retry, payments_breaker, payments_throttler)
@@ -140,9 +146,7 @@ def refund(txn):    return payments.call(_post, "/refund", txn)
 def status(txn): ...
 ```
 
-### The Fragmentation Hazard
-
-This is the mistake Python's decorator syntax makes easy:
+### Decorator Pitfall
 
 ```python
 # wrong: twenty functions, twenty independent breakers
@@ -153,9 +157,7 @@ def charge(amount): ...
 def refund(txn): ...
 ```
 
-Each decorator builds its own breaker, so each sees a fraction of the traffic and none of them trips when the backend fails. No type checker can reject it — it is a valid constructor call — so it is a matter of discipline: hoist anything stateful.
-
-A lazy factory does not fix it either. Sharing is about *how many* policy objects get built, not *when*.
+Each decorator builds its own breaker, so each sees a fraction of the traffic and none of them trips when the resource fails. Construct stateful policies once and share them.
 
 ## Supported Policies
 

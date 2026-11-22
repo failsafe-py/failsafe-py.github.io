@@ -53,28 +53,20 @@ throttler = AdaptiveThrottler().prioritized_by(prioritizer)
 
 Prioritization only matters when a policy is overloaded and must reject something. Each policy determines how overloaded it is; the `Prioritizer` combines that across policies into a global rejection rate.
 
-## Calibration Is Yours to Schedule
+## Calibration
 
-Nothing recalculates on its own. Call `calibrate()` on whatever schedule you already have:
+A prioritizer should be calibrated regularly to update its rejection threshold. Call `calibrate()` on your own schedule, or scope a background thread to a block:
 
 ```python
 prioritizer.calibrate()
-```
 
-Or scope a background thread to a block, which joins it on exit:
-
-```python
 with prioritizer.scheduled_calibrations(1.0):
     serve_forever()
 ```
 
-A library silently owning an OS thread interacts badly with `fork`, with test suites, and with anyone running under an event loop who never asked for a thread. The context manager makes the thread's lifetime lexical.
-
-There is no async variant. Calibration is pure CPU over in-memory counters with no awaits, so an asyncio user can call `calibrate()` from their own [`TaskGroup`][task-group] loop.
-
 ## Prioritized Execution
 
-Priority is ambient, carried in a [contextvar][contextvars] rather than threaded through every signature:
+To perform an execution with a priority, enter a priority scope:
 
 ```python
 from failsafe import Priority, priority_scope
@@ -82,8 +74,6 @@ from failsafe import Priority, priority_scope
 with priority_scope(Priority.HIGH):
     response = Failsafe(limiter).call(fetch_data)
 ```
-
-Contextvars propagate into tasks and threads the library starts, so a nested helper several frames down executes at the right priority without a parameter reaching it.
 
 When a policy is exceeded, executions are rejected based on the prioritizer's rejection threshold.
 
@@ -109,9 +99,9 @@ UsageTracker(window=300.0, max_users=10000)
 
 ## Priorities vs Levels
 
-To enable more granular prioritization, priorities are internally converted to levels, with 100 levels per priority class, numbered 0–499. Prioritizers use levels to determine what to reject, allowing precise rejection rates: load within a single priority sheds gradually rather than all at once.
+In order to enable more granular prioritization of executions, priorities are internally converted to more granular levels, with 100 levels per priority class. In practice, prioritizers use these levels to determine which executions to reject, allowing more precise rejection rates.
 
-A level is normally picked at random within the priority in scope. To pin an exact one:
+To use an exact level rather than one drawn from a priority:
 
 ```python
 from failsafe import level_scope
@@ -119,8 +109,6 @@ from failsafe import level_scope
 with level_scope(250):
     ...
 ```
-
-Read what is in scope with `current_priority()`, `current_level()` and `current_user()`; all return `None` when nothing is set.
 
 ## Features
 
@@ -144,10 +132,6 @@ prioritizer = queue_prioritizer(
 | `prioritizer.rejection_threshold` | the level below which executions are rejected |
 | `prioritizer.registered_policies` | how many policies report to it |
 
-### HTTP Support
-
-When using HTTP, priority and level information can be propagated from clients to servers. See the [HTTP docs][http-priorities].
-
 ## Standalone Usage
 
 Policies that support prioritization accept a priority on their standalone permit methods:
@@ -162,9 +146,6 @@ A priority passed explicitly overrides whatever is in scope.
 
 ## Best Practices
 
-Prioritizers can and should be shared across multiple limiters where possible. A combined threshold across limiters accounts for their combined queueing and leads to more stable rejection behaviour.
-
-{: .callout }
-> A prioritized limiter with exactly **one** registered policy short-circuits on local capacity and ignores the threshold, so it need not wait for the next calibration. With two or more it defers entirely to the shared threshold. Tests that want to exercise threshold behaviour must register a second policy.
+Prioritizers can and should be shared across multiple limiters when possible. This allows a combined rejection threshold to be determined across limiters, which takes their combined queueing into account and leads to more stable rejection behaviour.
 
 {% include common-links.html %}

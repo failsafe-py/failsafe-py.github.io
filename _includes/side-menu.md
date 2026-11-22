@@ -24,7 +24,6 @@
   - [Execution Budgets][budgets]
   - [HTTP Support][http]
   - [Type Safety][type-safety]
-  - [Extending][extending]
 
 - Resources
   - [Github][github]

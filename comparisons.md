@@ -9,26 +9,18 @@ title: Comparisons
 1. TOC
 {:toc}
 
-How failsafe-py differs from the Python libraries that solve part of the same problem. Only libraries in wide use are covered; obscure ones are a disservice to compare against.
-
-The honest summary: if you need **only** retries, [tenacity] is mature, widely deployed and a perfectly good choice. failsafe-py earns its place when you need several policies that must work together, or when you need the same policy to guard sync and async callers.
-
 ## Retries
 
 ### failsafe-py vs tenacity
 
-[tenacity] is the de-facto Python retry library, and a fork of the older `retrying`. It differs from failsafe-py's [RetryPolicy][retry] in a few ways:
+[tenacity] is the de-facto Python retry library. It differs from failsafe-py's [RetryPolicy][retry] in a few ways:
 
-- failsafe-py retries are one policy among several that **compose**. tenacity solves retries only; a circuit breaker or bulkhead alongside it is a separate library with its own ordering semantics to reason about.
-- failsafe-py combines retry settings through a single constructor. tenacity composes `stop_*`, `wait_*` and `retry_*` objects, which is flexible but spreads one policy across several imports.
-- failsafe-py shares one policy instance between sync and async callers. tenacity has `Retrying` and `AsyncRetrying` as separate classes.
-- failsafe-py retries can be [aborted][aborts] on specific results, exceptions, or conditions, failing fast rather than exhausting the attempts.
-- failsafe-py retries can be bounded system-wide by a [budget][budgets], which caps the share of in-flight work that retries may become. tenacity has no cross-call notion of retry load.
-- failsafe-py never retries `BaseException`. `asyncio.CancelledError` is terminal by construction, which is the most common correctness bug in this category.
-- failsafe-py jitter is attached to the delay, so it cannot be configured where it does nothing.
-- tenacity's `before`/`after`/`retry_error_callback` hooks are broadly equivalent to failsafe-py's [listeners][retry-listeners].
+- failsafe-py retries are one policy among several that [compose][policy-composition]. tenacity solves retries only.
+- failsafe-py retries can be [aborted][aborts] on specific results, exceptions, or conditions.
+- failsafe-py retries can be bounded system-wide by a [budget][budgets].
+- failsafe-py shares one policy instance between sync and async callers; tenacity has separate `Retrying` and `AsyncRetrying` classes.
 
-tenacity also offers things failsafe-py does not: `@retry` with zero configuration, `reraise` semantics tuned over many years, and `retry_if_exception_message`. If retries are your whole problem, that maturity is worth something.
+If retries are your whole problem, tenacity is mature and widely deployed.
 
 ### failsafe-py vs backoff
 
@@ -42,21 +34,16 @@ tenacity also offers things failsafe-py does not: `@retry` with zero configurati
 
 ### failsafe-py vs pybreaker
 
-[pybreaker] is the most established Python circuit breaker, a port of Michael Nygard's pattern with a listener model and optional Redis-backed state.
+[pybreaker] is the most established Python circuit breaker.
 
-- failsafe-py offers **count based and time based** thresholding, including a failure *rate* over a period. pybreaker thresholds on consecutive failures only, which cannot express "20% of the last minute".
-- failsafe-py's half-open state admits a **bounded** number of concurrent trials. pybreaker admits callers into half-open without that cap, so every caller queued during the reset timeout can hit a recovering service at once.
-- failsafe-py breakers [compose][policy-composition] with retries, timeouts, bulkheads and fallbacks under one ordering model.
-- failsafe-py breakers can threshold on **results**, not just exceptions — useful when a 500 response is not an exception.
-- pybreaker offers distributed state via Redis, which failsafe-py does not. If you need breaker state shared across processes, that is a real advantage and failsafe-py has no answer for it today.
+- failsafe-py offers count based and time based thresholding, including a failure *rate* over a period. pybreaker thresholds on consecutive failures only.
+- failsafe-py's half-open state admits a bounded number of trial executions.
+- failsafe-py breakers can threshold on results, not just exceptions.
+- pybreaker offers distributed state via Redis, which failsafe-py does not.
 
 ### failsafe-py vs circuitbreaker
 
-[circuitbreaker] is a small decorator-only circuit breaker.
-
-- It is deliberately minimal: a decorator, a failure threshold, a recovery timeout. failsafe-py's breaker is a superset.
-- It has no half-open trial cap, no rate thresholding, and no composition with other policies.
-- Its decorator-per-function model makes the [fragmentation hazard][policy-sharing] the default: each decorated function gets its own breaker state unless you pass a shared instance.
+[circuitbreaker] is a decorator-only circuit breaker with a failure threshold and a recovery timeout. It has no rate thresholding and no composition with other policies.
 
 ## Load Limiting
 
