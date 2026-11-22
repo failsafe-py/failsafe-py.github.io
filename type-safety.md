@@ -51,16 +51,9 @@ charge("acct-1", 10)              # error: Argument 2 has incompatible type "int
 
 <!-- TODO(ndumazet): inspect — Condition type and Any-typed event results. -->
 
-`handle` and `abort` accept the same [`Condition`][failure-handling] type everywhere — an exception type, a tuple of them, a `Result(value)`, a predicate, or a sequence of those:
+`handle` and `abort` accept the same [conditions][failure-handling] everywhere — an exception type, a tuple of them, a bare value, a predicate, or a list mixing them:
 
-```python
-Condition = (
-    type[Exception] | tuple[type[Exception], ...]
-    | Result
-    | Callable[[Any, Exception | None], bool]
-    | Sequence[Condition]
-)
-```
+`Condition` is typed `Any`, deliberately: bare values are accepted, so the set of legal arguments is almost anything, and a union spelling it out would reject valid code while promising a precision it cannot deliver. Genuinely ambiguous shapes raise `TypeError` at construction instead.
 
 Predicates and listeners are typed against the event, not against a policy type parameter:
 

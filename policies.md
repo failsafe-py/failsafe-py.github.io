@@ -18,36 +18,40 @@ Policies add resilience by detecting failures and handling them. Each policy det
 Some policies, such as [Retry][retry], [Circuit Breaker][circuit-breakers], [Adaptive Throttler][adaptive-throttlers], and [Fallback][fallbacks], let you specify what to handle as a failure through a single `handle` parameter. By default these policies treat any `Exception` as a failure. They can be configured to handle more specific exception types, results, or conditions:
 
 ```python
-from failsafe import Result
-
-RetryPolicy(handle=ConnectionError)                    # one exception type
+RetryPolicy(handle=ConnectionError)                    # an exception type
 RetryPolicy(handle=(ConnectionError, TimeoutError))    # several
-RetryPolicy(handle=Result(None))                       # a returned value
+RetryPolicy(handle=None)                               # a returned value
+RetryPolicy(handle="unavailable")                      # any value, matched with ==
 RetryPolicy(handle=lambda result, exc: result == 500)  # a condition
 ```
 
-A sequence mixes all of them, and they are OR'ed:
+A list mixes all of them, and they are OR'ed:
 
 ```python
-RetryPolicy(handle=[ConnectionError, Result(None), lambda r, e: r is not None and r.status_code >= 500])
+RetryPolicy(handle=[ConnectionError, lambda r, e: r is not None and r.status_code >= 500])
 ```
 
-The same `Condition` type is accepted wherever a policy asks "does this outcome match?": `abort=` on retries, `cancel_on=` on hedges, `cache_if=` on caches.
+The same conditions are accepted wherever a policy asks "does this outcome match?": `abort=` on retries, `cancel_on=` on hedges, `cache_if=` on caches.
 
-### Why `Result(...)` Is Explicit
+### Matching a Value with `Result`
 
-<!-- TODO(ndumazet): revisit once the library is rewritten — may not need the explicit wrapper. -->
+A bare value works everywhere it is unambiguous. Wrap it in `Result` where it would read as something else — inside a list, which already means "any of these", or when the value is itself a tuple, a list, or callable:
 
-`handle=None` would be ambiguous between "no condition configured" and "treat a returned `None` as a failure". Wrapping the value disambiguates it, which is what keeps `handle` from splitting into `handle=` and `handle_result=`.
+```python
+from failsafe import Result
+
+RetryPolicy(handle=[Result("unavailable"), ConnectionError])
+RetryPolicy(handle=Result((1, 2)))
+```
+
+A class is callable, so matching a returned *instance* needs `Result(instance)`; a bare class is taken as a predicate. A list containing a bare value, and an empty list, both raise `TypeError`.
 
 ### Results Do Not Replace Error Handling
 
-<!-- TODO(ndumazet): inspect — confirm this is the behaviour you want to keep. -->
-
-A result-only condition **adds to** the default rather than replacing it. This policy retries both a `None` result and any exception:
+A result condition **adds to** the default rather than replacing it. This policy retries both a `None` result and any exception:
 
 ```python
-RetryPolicy(handle=Result(None))
+RetryPolicy(handle=None)
 ```
 
 Only a condition that handles exceptions replaces the default.

@@ -62,7 +62,7 @@ Exactly one of `delay` and `quantile` is required. `quantile_age` is how many ex
 By default, any outstanding hedges are cancelled after the first result is returned. You can also specify which results, exceptions, or conditions should cancel outstanding hedges:
 
 ```python
-HedgePolicy(0.1, cancel_on=Result(True))
+HedgePolicy(0.1, cancel_on=True)
 HedgePolicy(0.1, cancel_on=ConnectionError)
 HedgePolicy(0.1, cancel_on=lambda result, exc: result is not None and result.status_code < 500)
 ```

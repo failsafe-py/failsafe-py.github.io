@@ -86,10 +86,10 @@ This is `return_last_failure=True`, which `retry_policy()` sets by default. Pass
 Other policies that support delays, such as [circuit breakers][circuit-breakers], can also be configured with `retry_after_delay`, which delays according to a `Retry-After` header:
 
 ```python
-from failsafe import CircuitBreaker, Result
+from failsafe import CircuitBreaker
 from failsafe.httpx import retry_after_delay
 
-breaker = CircuitBreaker(handle=Result(429), delay=retry_after_delay)
+breaker = CircuitBreaker(handle=lambda r, e: r is not None and r.status_code == 429, delay=retry_after_delay)
 ```
 
 {% include common-links.html %}
