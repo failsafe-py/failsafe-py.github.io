@@ -66,14 +66,19 @@ with prioritizer.scheduled_calibrations(1.0):
 
 ## Prioritized Execution
 
-To perform an execution with a priority, enter a priority scope:
+One composition serves every priority. The priority belongs to the *request*, not to the policy, so it is set at the call site rather than baked into a second `Failsafe`:
 
 ```python
 from failsafe import Priority, priority_scope
 
-with priority_scope(Priority.HIGH):
-    response = Failsafe(limiter).call(fetch_data)
+api = Failsafe(limiter)           # built once, shared
+
+def handle(request):
+    with priority_scope(Priority.HIGH if request.is_interactive else Priority.LOW):
+        return api.call(fetch_data, request)
 ```
+
+A priority set in an outer scope applies to everything called inside it, including helpers several frames down, so an HTTP handler can classify a request once and every policy beneath it sees that priority.
 
 When a policy is exceeded, executions are rejected based on the prioritizer's rejection threshold.
 

@@ -29,8 +29,6 @@ Composed outermost, a cache hit skips every policy inside it.
 
 ## Cache Keys Come from the Arguments
 
-<!-- TODO(ndumazet): inspect — key= callable vs an ambient key. -->
-
 The `key` callable receives the call's arguments and returns the key, shaped like [`functools.lru_cache`][lru-cache]:
 
 ```python
@@ -38,7 +36,7 @@ CachePolicy(backend, key=lambda user_id: f"user:{user_id}")
 CachePolicy(backend, key=lambda method, url, **kw: f"{method}:{url}")
 ```
 
-The key is a function of the arguments in nearly every case, and a callable says so directly. ([Priority][execution-prioritization] is ambient instead, because it genuinely is request-scoped data propagated across hops.)
+A cache key is derived from what you are calling, so it comes from the arguments. A [priority][execution-prioritization] describes *who is asking* and applies to every call underneath it, so it is ambient instead.
 
 Returning `None` skips the cache for that call, which is how you exclude requests that should never be served from cache:
 
@@ -49,8 +47,6 @@ CachePolicy(backend, key=lambda req: None if req.no_cache else req.url)
 [lru-cache]: https://docs.python.org/3/library/functools.html#functools.lru_cache
 
 ## The Cache Backend
-
-<!-- TODO(ndumazet): inspect — the Cache protocol and get() presence flag. -->
 
 A backend needs two methods:
 
