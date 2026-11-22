@@ -16,6 +16,9 @@ failsafe-py ships [`py.typed`][py-typed] and is clean under `mypy --strict`. Pyt
 The result type and the arguments both come from the function you execute:
 
 ```python
+def send_request(url: str) -> Response: ...
+def count_rows(table: str) -> int: ...
+
 failsafe = Failsafe(retry, breaker)
 
 response = failsafe.call(send_request, url)   # Response
@@ -48,8 +51,6 @@ Failsafe(Fallback(value="n/a")).call(count_rows, table)   # inferred int, return
 # a condition that will never match
 RetryPolicy(handle=12345)
 ```
-
-[Conditions][failure-handling] are typed `Any` on purpose. Bare values are accepted, so the set of legal arguments is open-ended, and a union spelling it out would reject valid code while promising a precision it cannot deliver. Genuinely ambiguous shapes raise `TypeError` at construction instead — a runtime check where a static one is not available.
 
 Event listeners are typed against the event rather than the result, so `e.result` is `Any`:
 
