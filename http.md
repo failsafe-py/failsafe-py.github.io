@@ -76,6 +76,19 @@ response = client.get(url)   # a 500 after 3 attempts, not an exception
 
 This is [`return_last_failure=True`][retry-return-value], which `retry_policy()` sets by default. Pass `return_last_failure=False` to raise instead.
 
+## Timeouts
+
+A [`Timeout`][timeouts] composed into the transport bounds the round trip, in sync as well as async. The transport narrows each phase of httpx's own timeout to the execution's remaining budget, so httpx enforces the deadline rather than merely reporting it afterwards:
+
+```python
+client = httpx.Client(transport=FailsafeTransport(Timeout(2.0)))
+client.get(url)   # fails in ~2s even against a server that never replies
+```
+
+A stricter timeout you configured yourself is kept — each phase is the lower of the two.
+
+This is the exception to the [sync caveat][timeouts]: the transport cooperates on your behalf, so no `remaining()` plumbing is needed for HTTP.
+
 ## Handling Retry-After
 
 Other policies that support delays, such as [circuit breakers][circuit-breakers], can also be configured with `retry_after_delay`, which delays according to a `Retry-After` header:

@@ -28,23 +28,20 @@ When the limit elapses, the execution and any policies composed *inside* the tim
 
 Under `AsyncFailsafe` the awaiting attempt is interrupted, so the limit bounds the time actually spent. Under `Failsafe` it cannot be, and that difference is worth understanding before you rely on a sync timeout.
 
-## Sync Timeouts Are Cooperative
+## Warning regarding Sync Timeouts
 
-Python cannot interrupt a running function. A sync `Timeout` checks the deadline *between* policy steps, so a call that blocks straight through simply runs to completion:
+Python cannot interrupt a running function. A sync `Timeout` checks the deadline *between* policy steps, so a call that blocks straight through simply runs to completion. Example:
 
 ```python
 Failsafe(Timeout(2.0)).call(time.sleep, 20)
 ```
 
-That raises `TimeoutExceeded` — **after 20 seconds**. The limit decided what gets *reported*, not what gets *spent*: `time.sleep` offers no way to interrupt it, so nothing can cut it short. Worse, had the call returned a value at second 20, that value is discarded in favour of the timeout.
+That waits 20 seconds and then raises `TimeoutExceeded`.
 
-The same applies per attempt under a retry, so `Failsafe(retry, Timeout(2.0))` over a 20-second call takes 60 seconds for three attempts, not 6.
 
-There is no flag that fixes this. Running the attempt on a worker thread would free the caller on time but leave the work running, still holding any [bulkhead][bulkheads] permit or connection it acquired — a bounded wait bought with an unbounded leak.
+### Papering over it: `remaining()`
 
-### a) The Workaround: `remaining()`
-
-A sync timeout is real only if the callee enforces it. [`Execution.remaining()`][execution-info] is the seconds left before the deadline; pass it to whatever blocks:
+[`Execution.remaining()`][execution-info] is the seconds left before the deadline; pass it to whatever blocks:
 
 ```python
 from failsafe import Failsafe, Timeout, current_execution
@@ -55,7 +52,7 @@ def fetch(url):
 Failsafe(Timeout(2.0)).call(fetch, url)   # returns in ~2s
 ```
 
-This works because `httpx` enforces the deadline — failsafe only supplies the number. Every sync I/O library in Python takes one:
+This works because `httpx` enforces the deadline which failsafe supplies. Every sync I/O library in Python takes one:
 
 | | |
 |---|---|
@@ -66,11 +63,13 @@ This works because `httpx` enforces the deadline — failsafe only supplies the 
 
 `remaining()` returns `None` when no policy has set a deadline, so a callee that wants a fallback should write `current_execution().remaining() or 30`.
 
-It is a *limited* workaround. It needs the callee to cooperate, which rules out code you do not control, C extensions, and pure-CPU work.
+For HTTP there is nothing to do: the [httpx transport][http] applies the budget to each request itself.
+
+Otherwise it is a *limited* workaround. It needs the callee to cooperate, which rules out code you do not control, C extensions, and pure-CPU work.
 
 ### b) Prefer Async for Anything More Involved
 
-`AsyncFailsafe` has none of this. `asyncio.timeout` interrupts the attempt wherever it is awaiting, so the limit holds without the callee knowing it exists:
+`AsyncFailsafe` just works. Async Python will be a lot easier to write. `asyncio.timeout` interrupts the attempt wherever it is awaiting, so the limit holds without the callee knowing it exists:
 
 ```python
 await AsyncFailsafe(Timeout(2.0)).call(asyncio.sleep, 20)   # raises in ~2s
