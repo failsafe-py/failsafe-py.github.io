@@ -152,8 +152,9 @@ def status(txn): ...
 
 ### Decorator Pitfall
 
+Watch out for the following:
+
 ```python
-# wrong: twenty functions, twenty independent breakers
 @Failsafe(RetryPolicy(), CircuitBreaker())
 def charge(amount): ...
 
@@ -161,7 +162,20 @@ def charge(amount): ...
 def refund(txn): ...
 ```
 
-Each decorator builds its own breaker, so each sees a fraction of the traffic and none of them trips when the resource fails. Construct stateful policies once and share them.
+In this case each decorator builds its own breaker, and each only sees a
+fraction of the traffic. You probably want to share policies per set of common
+backends:
+
+```python
+_shared = Failsafe(RetryPolicy(), CircuitBreaker())
+
+@_shared
+def charge(amount): ...
+
+@_shared
+def refund(txn): ...
+```
+
 
 ## Supported Policies
 

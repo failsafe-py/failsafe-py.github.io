@@ -9,69 +9,61 @@ title: Type Safety
 1. TOC
 {:toc}
 
-failsafe-py ships [`py.typed`][py-typed] and is checked with `mypy --strict` and pyright. Types are inferred from the function you execute, so correctly typed code needs no annotations of its own.
+failsafe-py ships [`py.typed`][py-typed] and is clean under `mypy --strict`. Python's type system only reaches so far into a library like this one, so this page is about what a type checker will catch for you, and what it will not.
 
-## Result Types Are Inferred per Call
+## What Is Checked
 
-<!-- TODO(ndumazet): inspect — per-call R inference vs Generic[R]. -->
-
-Policies are not generic; `Failsafe.call` is. The result type comes from the function you execute, not from the policy you built:
+The result type and the arguments both come from the function you execute:
 
 ```python
-retry = RetryPolicy(max_retries=3)
-fs = Failsafe(retry)
+failsafe = Failsafe(retry, breaker)
 
-response = fs.call(send_request, url)   # response: Response
-count = fs.call(count_rows, table)      # count: int
+response = failsafe.call(send_request, url)   # Response
+rows = failsafe.call(count_rows, table)       # int
+
+failsafe.call(send_request, 123)              # error: incompatible argument type
+failsafe.call(send_request)                   # error: missing argument
 ```
 
-Both calls go through the same composition, and each is typed by the function passed to it. Nothing needs a type argument, and nothing has to agree with anything else.
+One composition can guard calls returning different types, with no annotations and no type arguments. `call` is typed with a [`ParamSpec`][paramspec], which is what keeps the argument check.
 
-This is deliberate. A `Generic[R]` executor defaulting to `Any` needs [PEP 696] type parameter defaults, which land in Python 3.13; on the 3.11 floor `Failsafe(retry)` would infer `Never` and every example on this site would read `Failsafe[Response](retry)`.
-
-[PEP 696]: https://peps.python.org/pep-0696/
-
-## Decorated Functions Keep Their Signature
-
-<!-- TODO(ndumazet): inspect — ParamSpec on the decorator. -->
-
-The decorator is typed with [`ParamSpec`][paramspec], so arguments and return type survive:
+The decorator preserves the signature for the same reason:
 
 ```python
-payments = Failsafe(retry, breaker)
-
-@payments
+@failsafe
 def charge(account: str, amount: Decimal) -> Receipt: ...
 
 charge("acct-1", Decimal("10"))   # Receipt
-charge("acct-1", 10)              # error: Argument 2 has incompatible type "int"
+charge("acct-1", 10)              # error: incompatible argument type
 ```
 
-## Typing Conditions and Listeners
+## What Is Not
 
-<!-- TODO(ndumazet): inspect — Condition type and Any-typed event results. -->
+Policies are not parameterised by result type, so nothing ties a policy to the calls it guards. A type checker cannot catch these:
 
-`handle` and `abort` accept the same [conditions][failure-handling] everywhere — an exception type, a tuple of them, a bare value, a predicate, or a list mixing them:
+```python
+# a fallback value unrelated to the result type
+Failsafe(Fallback(value="n/a")).call(count_rows, table)   # inferred int, returns a str
 
-`Condition` is typed `Any`, deliberately: bare values are accepted, so the set of legal arguments is almost anything, and a union spelling it out would reject valid code while promising a precision it cannot deliver. Genuinely ambiguous shapes raise `TypeError` at construction instead.
+# a condition that will never match
+RetryPolicy(handle=12345)
+```
 
-Predicates and listeners are typed against the event, not against a policy type parameter:
+[Conditions][failure-handling] are typed `Any` on purpose. Bare values are accepted, so the set of legal arguments is open-ended, and a union spelling it out would reject valid code while promising a precision it cannot deliver. Genuinely ambiguous shapes raise `TypeError` at construction instead — a runtime check where a static one is not available.
+
+Event listeners are typed against the event rather than the result, so `e.result` is `Any`:
 
 ```python
 def on_failure(e: ExecutionEvent) -> None:
     logger.error("attempt %d failed: %s", e.attempts, e.exception)
-
-retry = RetryPolicy(on_failure=on_failure)
 ```
 
-Because the result is not carried in the policy's type, `e.result` is `Any`. A narrow consumer should say what it expects:
+A listener that needs the concrete type has to say so:
 
 ```python
 def log_status(e: ExecutionEvent) -> None:
     response = cast(Response, e.result)
     logger.error("failed attempt", extra={"status": response.status_code})
 ```
-
-That cast is the cost of inferring `R` per call rather than fixing it at construction, and it is paid only inside listeners.
 
 {% include common-links.html %}
