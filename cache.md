@@ -19,30 +19,41 @@ Creating and using a `CachePolicy` for a cache is simple:
 from failsafe import CachePolicy, Failsafe
 
 # Store users under a "user:<id>" key in the cache
-cache = CachePolicy(backend, key=lambda user_id: f"user:{user_id}")
+cache = CachePolicy(backend, key=lambda req: f"user:{req.user_id}")
 
 # Get a user from the cache, else fetch one
-user = Failsafe(cache).call(fetch_user, 42)
+user = Failsafe(cache).call(fetch_user, request)
 ```
 
 Composed outermost, a cache hit skips every policy inside it.
 
-## Cache Keys Come from the Arguments
+## Cache Keys
 
-The `key` callable receives the call's arguments and returns the key, shaped like [`functools.lru_cache`][lru-cache]:
+There are two ways to supply a key. The `key` callable receives the call's arguments, shaped like [`functools.lru_cache`][lru-cache]:
 
 ```python
-CachePolicy(backend, key=lambda user_id: f"user:{user_id}")
-CachePolicy(backend, key=lambda method, url, **kw: f"{method}:{url}")
+CachePolicy(backend, key=lambda req: f"user:{req.user_id}")
+CachePolicy(backend, key=lambda req: f"{req.method}:{req.url}")
 ```
-
-A cache key is derived from what you are calling, so it comes from the arguments. A [priority][execution-prioritization] describes *who is asking* and applies to every call underneath it, so it is ambient instead.
 
 Returning `None` skips the cache for that call, which is how you exclude requests that should never be served from cache:
 
 ```python
 CachePolicy(backend, key=lambda req: None if req.no_cache else req.url)
 ```
+
+A `cache_key` block supplies one ambiently, for a key that belongs to the request rather than to the arguments — a tenant, a revision, a trace:
+
+```python
+from failsafe import cache_key
+
+with cache_key(f"{tenant}:config"):
+    config = api.call(fetch_config)
+```
+
+A `cache_key` block **takes precedence** over the policy's `key=`. One of the two must supply a key; with neither, the execution runs uncached.
+
+`current_cache_key()` returns the key in scope, or `None`.
 
 [lru-cache]: https://docs.python.org/3/library/functools.html#functools.lru_cache
 
