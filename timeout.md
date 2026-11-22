@@ -39,20 +39,29 @@ Failsafe(Timeout(2.0)).call(time.sleep, 20)
 That waits 20 seconds and then raises `TimeoutExceeded`.
 
 
-### Papering over it: `remaining()`
+### 1. Using httpx? It already works
 
-[`Execution.remaining()`][execution-info] is the seconds left before the deadline; pass it to whatever blocks:
+The [httpx transport][http] hands the remaining budget to httpx on every attempt, so the deadline bounds the round trip with nothing to wire up:
+
+```python
+client = httpx.Client(transport=FailsafeTransport(Timeout(2.0)))
+client.get(url)   # fails in ~2s even against a server that never replies
+```
+
+### 2. Otherwise, pass `remaining()` yourself
+
+[`Execution.remaining()`][execution-info] is the seconds left before the deadline. Hand it to whatever blocks, and the limit becomes real because *that* library enforces it:
 
 ```python
 from failsafe import Failsafe, Timeout, current_execution
 
-def fetch(url):
-    return httpx.get(url, timeout=current_execution().remaining())
+def connect(host):
+    return socket.create_connection(host, timeout=current_execution().remaining())
 
-Failsafe(Timeout(2.0)).call(fetch, url)   # returns in ~2s
+Failsafe(Timeout(2.0)).call(connect, host)   # returns in ~2s
 ```
 
-This works because `httpx` enforces the deadline which failsafe supplies. Every sync I/O library in Python takes one:
+Every sync I/O library in Python takes one:
 
 | | |
 |---|---|
@@ -63,11 +72,9 @@ This works because `httpx` enforces the deadline which failsafe supplies. Every 
 
 `remaining()` returns `None` when no policy has set a deadline, so a callee that wants a fallback should write `current_execution().remaining() or 30`.
 
-For HTTP there is nothing to do: the [httpx transport][http] applies the budget to each request itself.
+It is a *limited* workaround. It needs the callee to cooperate, which rules out code you do not control, C extensions, and pure-CPU work.
 
-Otherwise it is a *limited* workaround. It needs the callee to cooperate, which rules out code you do not control, C extensions, and pure-CPU work.
-
-### b) Prefer Async for Anything More Involved
+### 3. Prefer Async for Anything More Involved
 
 `AsyncFailsafe` just works. Async Python will be a lot easier to write. `asyncio.timeout` interrupts the attempt wherever it is awaiting, so the limit holds without the callee knowing it exists:
 
