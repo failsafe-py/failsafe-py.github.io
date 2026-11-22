@@ -1,10 +1,8 @@
-# failsafe-py-docs
+# failsafe-py.github.io
 
-The documentation site for [failsafe-py](https://github.com/nicdumz/failsafe-py), a Python port
-of [failsafe-go](https://github.com/failsafe-go/failsafe-go).
+The documentation site for [failsafe-py](https://github.com/failsafe-py/failsafe-py).
 
-Ported from [failsafe-go.dev](https://failsafe-go.dev), page for page. Jekyll, served from
-GitHub Pages as a project page at `/failsafe-py-docs`.
+Jekyll, served from GitHub Pages at <https://failsafe-py.github.io>.
 
 ## Building
 
@@ -12,11 +10,13 @@ Ruby runs in a container — nothing is installed into the system or home gem pa
 
 ```bash
 bin/build.sh     # build into _site/
-bin/serve.sh     # serve on http://localhost:4000/failsafe-py-docs/
+bin/serve.sh     # serve on http://localhost:4000/
 ```
 
-## Project page gotcha
+## Links
 
-The site serves from a subpath, so `baseurl` is `/failsafe-py-docs` and **every** internal link
-and asset must go through `relative_url`. A hard-coded `/retry` resolves locally and 404s in
-production. `bin/build.sh` plus the link assertions in the commit history are the check.
+This is an **organisation site**, so it serves from the root and `baseurl` is empty.
+
+Internal links still go through `relative_url`, via a reference in
+`_includes/common-links.html`. That costs nothing today and makes a move to a custom
+domain or a subpath a one-line config change rather than an edit to every page.

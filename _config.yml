@@ -1,10 +1,10 @@
 title: failsafe-py
 description: Fault tolerance and resilience patterns for Python
-baseurl: "/failsafe-py-docs" # project page subpath; every link must go through it
-url: "https://nicdumz.github.io"
-repository: nicdumz/failsafe-py-docs
-github-url: https://github.com/nicdumz/failsafe-py
-web-github-url: https://github.com/nicdumz/failsafe-py-docs
+baseurl: "" # organisation site: served from the root. Links still go through it.
+url: "https://failsafe-py.github.io"
+repository: failsafe-py/failsafe-py.github.io
+github-url: https://github.com/failsafe-py/failsafe-py
+web-github-url: https://github.com/failsafe-py/failsafe-py.github.io
 permalink: pretty
 safe: true
 exclude:

@@ -44,14 +44,17 @@ Bad: `Updated some files`, `docs: this commit adds a new page about retry polici
 
 ## Links
 
-This is a **project page** served from `/failsafe-py-docs`, not an apex domain.
+This is an **organisation site**, served from the root of <https://failsafe-py.github.io>, so
+`baseurl` is empty.
 
-- Every internal link goes through `relative_url`, via a reference in `_includes/common-links.html`.
-- Never hard-code `/retry` or `https://nicdumz.github.io/...` — the first 404s in production, the
-  second pins the site to one origin.
+- Every internal link still goes through `relative_url`, via a reference in
+  `_includes/common-links.html`. An empty baseurl makes that a no-op today, and keeps a move to a
+  custom domain or a subpath a one-line config change.
+- Never hard-code `/retry` or `https://failsafe-py.github.io/...` — the first breaks under any
+  future baseurl, the second pins the site to one origin.
 - Add a new page's link definition to `common-links.html` and the nav to `_includes/side-menu.md`.
 
 ## Before committing
 
-Build and assert that no link escapes the baseurl and none is broken. A build that succeeds is
+Build and assert that every link resolves and none is broken. A build that succeeds is
 not the same as a site whose links resolve.
