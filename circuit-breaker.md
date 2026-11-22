@@ -70,7 +70,7 @@ CircuitBreaker(failure_threshold=Rate(0.2, min_executions=5, period=60.0))
 
 ### Half-Opening
 
-After opening, a breaker delays for 1 minute by default before transitioning to half-open. You can configure a different delay, using the same forms a [retry delay][retry] accepts:
+After opening, a breaker will delay for 1 minute by default before transitioning to half-open. You can configure a different delay, or a computed delay based on an execution result:
 
 ```python
 CircuitBreaker(delay=30.0)
@@ -78,10 +78,7 @@ CircuitBreaker(delay=Fixed(60.0, jitter=Jitter(factor=0.2)))
 CircuitBreaker(delay=failsafe.httpx.retry_after_delay)
 ```
 
-{: .callout }
-> A callable `delay=` yields no delay for a manual `breaker.open()`, which has no execution to compute one from. Pass a fixed delay if manual transitions need to stay open for a set time.
-
-While open, you can read the remaining delay, so callers know how long to wait:
+When in an open state, you can also get the remaining delay, so that callers know how long to wait before retrying:
 
 ```python
 breaker.remaining_delay()
@@ -138,8 +135,6 @@ if breaker.try_acquire_permit():
     else:
         breaker.record_success()
 ```
-
-`record(outcome)` records an `Outcome` judged by the breaker's own `handle` condition, which is what the executor uses.
 
 ## Best Practices
 

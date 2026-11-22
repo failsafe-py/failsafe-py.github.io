@@ -11,14 +11,11 @@ failsafe-py is a library for building resilient, fault tolerant Python applicati
 - Load limiting: [Circuit Breaker][circuit-breakers], [Adaptive Limiter][adaptive-limiters], [Adaptive Throttler][adaptive-throttlers], [Bulkhead][bulkheads], [Rate Limiter][rate-limiters], [Cache][caches]
 - Time limiting: [Timeout][timeouts], [Hedge][hedge]
 
-Every policy works the same from sync and async code, and **one policy instance can be shared between both**: a circuit breaker tripped by a thread is seen open by a coroutine.
+Every policy works the same from sync and async code, and one policy instance can be shared between both.
 
-## Installation
-
-```bash
-pip install failsafe-py            # no runtime dependencies
-pip install 'failsafe-py[httpx]'   # with HTTP support
-```
+{: .callout-unreleased }
+> **Alpha.** failsafe-py is an agentic rewrite of [failsafe-go](https://failsafe-go.dev)
+> and has not been released. Expect the API to change.
 
 ## Getting Started
 
@@ -77,19 +74,6 @@ connection = Failsafe(fallback, retry, breaker, timeout).call(connect, host)
 ```
 
 Order does matter when composing policies. See the [policy composition][policy-composition] overview for more details.
-
-### Reusing a Composition
-
-A `Failsafe` *is* the reusable composition — build it once and call it many times:
-
-```python
-payments = Failsafe(retry, breaker)
-
-def charge(amount): return payments.call(_post, "/charge", amount)
-def refund(txn):    return payments.call(_post, "/refund", txn)
-```
-
-This is not just a convenience. Stateful policies model the health of a *backend*, so writing `@Failsafe(RetryPolicy(), CircuitBreaker())` on twenty functions builds twenty independent breakers, each seeing a twentieth of the traffic. See [policy sharing][policy-sharing].
 
 ## Further Reading
 

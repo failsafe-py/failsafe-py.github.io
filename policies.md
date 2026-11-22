@@ -36,13 +36,13 @@ The same `Condition` type is accepted wherever a policy asks "does this outcome 
 
 ### Why `Result(...)` Is Explicit
 
-<!-- TODO(nicdumz): revisit once the library is rewritten — may not need the explicit wrapper. -->
+<!-- TODO(ndumazet): revisit once the library is rewritten — may not need the explicit wrapper. -->
 
 `handle=None` would be ambiguous between "no condition configured" and "treat a returned `None` as a failure". Wrapping the value disambiguates it, which is what keeps `handle` from splitting into `handle=` and `handle_result=`.
 
 ### Results Do Not Replace Error Handling
 
-<!-- TODO(nicdumz): inspect — confirm this is the behaviour you want to keep. -->
+<!-- TODO(ndumazet): inspect — confirm this is the behaviour you want to keep. -->
 
 A result-only condition **adds to** the default rather than replacing it. This policy retries both a `None` result and any exception:
 
@@ -54,7 +54,7 @@ Only a condition that handles exceptions replaces the default.
 
 ### Exception Chains
 
-<!-- TODO(nicdumz): inspect — `__cause__` walking depth and ExceptionGroup handling. -->
+<!-- TODO(ndumazet): inspect — `__cause__` walking depth and ExceptionGroup handling. -->
 
 An exception matches if it is an instance of a handled type, or if any exception in its `__cause__` chain is. The chain is walked depth-limited and only through `__cause__` — explicit chaining — because walking `__context__` would match exceptions raised incidentally while handling something else. For an `ExceptionGroup`, any matching leaf matches.
 
@@ -104,7 +104,7 @@ Consider an execution of the following policy composition:
 
 ### Composition and Exception Handling
 
-<!-- TODO(nicdumz): inspect. -->
+<!-- TODO(ndumazet): inspect. -->
 
 While policies handle all `Exception` instances by default, it is common to configure a policy to handle something more specific, as [described above](#failure-handling):
 

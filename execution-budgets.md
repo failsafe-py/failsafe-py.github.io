@@ -9,9 +9,7 @@ title: Execution Budgets
 1. TOC
 {:toc}
 
-Budgets cap the share of in-flight work that retries and hedges may consume, preventing them from causing the overload they were meant to paper over.
-
-A retry storm is self-inflicted load: the attempts meant to cover a few failures become most of the traffic to an already struggling service. One budget shared between policies bounds that, letting extra attempts through only while they stay a small fraction of normal traffic.
+Budgets limit the total number of concurrent retries or hedges across a system to prevent them from causing overload. This can happen when a flood of retries or hedges come in and need to be handled gradually.
 
 ## Usage
 
@@ -30,16 +28,11 @@ The same budget works for [hedges][hedge]:
 hedged = AsyncFailsafe(HedgePolicy(0.1, budget=budget))
 ```
 
-One budget can serve both, which is usually right: retries and hedges are the same extra load from the dependency's point of view.
+You can use the same budget for retries and hedges if you like.
 
 ## How It Works
 
-Budgets permit extra attempts up to a share of the executions in flight. Beyond that:
-
-- a [`RetryPolicy`][retry] stops retrying and fails with `BudgetExceeded`
-- a [`HedgePolicy`][hedge] simply stops hedging, leaving the attempts already running to produce a result
-
-The rate is measured against executions **in flight right now**, not over a time window. That needs no clock and reacts immediately, where a windowed rate lags exactly when a storm is building.
+Budgets permit executions to proceed up to some max share of concurrent retries or hedges, after which a [`RetryPolicy`][retry] fails with `BudgetExceeded` and a [`HedgePolicy`][hedge] stops hedging. This allows a system-wide cap to be placed on retries or hedges.
 
 ## Comparison
 
@@ -57,13 +50,11 @@ Budget(max_rate=0.5)
 
 ### Min Concurrency
 
-Extra attempts always allowed regardless of the rate, so a quiet service still retries:
+You can also specify the min number of concurrent executions that can be retries or hedges:
 
 ```python
 Budget(min_concurrency=5)
 ```
-
-Without this, a service with one request in flight could never retry it — one retry out of one execution is a rate of 1.0, over any sane threshold.
 
 ### Event Listeners
 
@@ -85,20 +76,6 @@ The event carries the `execution`, the `kind` — `"retry"` or `"hedge"` — and
 # wrong: each policy gets its own 20%, so the dependency sees 40%
 Failsafe(RetryPolicy(budget=Budget()))
 Failsafe(RetryPolicy(budget=Budget()))
-```
-
-## Standalone Usage
-
-```python
-budget.record_execution()
-try:
-    if budget.try_acquire_permit():
-        try:
-            do_retry()
-        finally:
-            budget.release_permit()
-finally:
-    budget.release_execution()
 ```
 
 {% include common-links.html %}

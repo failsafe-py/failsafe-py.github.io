@@ -94,7 +94,7 @@ Backoff state is per execution, not per policy, so a shared policy's concurrent 
 
 ### Jitter
 
-Jitter is an attribute of the delay rather than a separate parameter, because jitter without a delay does nothing:
+You can combine a delay with a random jitter factor, or a time based jitter:
 
 ```python
 from failsafe import Fixed, Jitter
@@ -102,14 +102,6 @@ from failsafe import Fixed, Jitter
 RetryPolicy(delay=Backoff(1.0, 30.0, jitter=Jitter(factor=0.25)))  # ±25% of each delay
 RetryPolicy(delay=Fixed(1.0, jitter=Jitter(seconds=0.1)))          # ±100ms on each delay
 RetryPolicy(delay=Backoff(1.0, 30.0, jitter=0.25))                 # shorthand for factor
-```
-
-`Jitter(factor=...)` and `Jitter(seconds=...)` are spelled out because a bare float is ambiguous: `jitter=0.5` could mean half a second or ±50%. A plain `delay=1.0` carries no jitter and has nothing to leave half-configured.
-
-For deterministic tests, inject the randomness:
-
-```python
-RetryPolicy(delay=Backoff(1.0, 30.0, jitter=0.25), rng=random.Random(42))
 ```
 
 ### Budgets
@@ -120,18 +112,9 @@ RetryPolicy(delay=Backoff(1.0, 30.0, jitter=0.25), rng=random.Random(42))
 RetryPolicy(budget=budget)
 ```
 
-### Aborts
+### Return Value
 
-You can specify which results, exceptions, or conditions should [abort][failure-handling] retries, failing immediately with that outcome rather than `RetriesExceeded`:
-
-```python
-RetryPolicy(handle=HTTPError, abort=AuthenticationError)
-RetryPolicy(abort=lambda result, exc: result is not None and result.status_code == 404)
-```
-
-`abort` is only consulted for outcomes that `handle` already considers failures, and it takes the same `Condition` type.
-
-### Raised Exception
+<!-- TODO(ndumazet): inspect — RetriesExceeded vs return_last_failure. -->
 
 By default, when an execution fails and the retries are exhausted, `RetriesExceeded` is raised, carrying the last result and exception, and chaining the original as `__cause__`:
 

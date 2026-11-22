@@ -15,8 +15,6 @@ Rate limiters are [load limiters][load-limiting] that limit the rate of executio
 
 When executions exceed the configured max per period, further executions either fail with `RateLimitExceeded` or wait until permitted.
 
-Both reserve permits by arithmetic: a reservation returns the time the caller must wait, so a reserved permit is never lost and the same instance can serve sync and async callers.
-
 ## Smooth Rate Limiter
 
 ```python
@@ -73,34 +71,19 @@ RateLimiter.smooth(100, period=1.0, on_rate_limit_exceeded=lambda e: logger.erro
 
 ## Standalone Usage
 
+A `RateLimiter` can also be manually operated in a standalone way:
+
 ```python
 if limiter.try_acquire_permit():
     do_something()
 ```
 
-Blocking acquisition has a sync and an async method, both against the same limiter:
-
-```python
-limiter.acquire_permit()
-await limiter.acquire_permit_async()
-```
-
-You can also integrate with an external scheduler by reserving a permit and getting back the wait:
+You can also integrate a standalone rate limiter with an external scheduler to wait for a permit:
 
 ```python
 wait = limiter.reserve_permit()           # seconds to wait
 scheduler.enter(wait, 1, some_func)
-
-wait = limiter.try_reserve_permit(1.0)    # -1.0 if it would take longer
 ```
-
-Multiple permits can be acquired at once, for a caller whose work costs more than one unit:
-
-```python
-limiter.acquire_permit(permits=5)
-```
-
-`limiter.reset()` discards all reservations, as if the limiter had just been built.
 
 ## Best Practices
 

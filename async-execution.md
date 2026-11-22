@@ -65,12 +65,4 @@ A failure recorded through `sync_payments` opens the breaker for `async_payments
 
 [Hedging][hedge] requires cancelling the losing attempts, which sync Python cannot do, so `HedgePolicy` under `Failsafe` raises `NotImplementedError`. Every other policy behaves identically in both modes.
 
-## Listeners Are Sync
-
-[Event listeners][event-listeners] are plain functions, not coroutines — a coroutine listener cannot be awaited from sync code. Listeners are for logging and metrics; if one needs to do I/O, hand the work to a task:
-
-```python
-retry = RetryPolicy(on_retry=lambda e: asyncio.get_running_loop().create_task(report(e)))
-```
-
 {% include common-links.html %}

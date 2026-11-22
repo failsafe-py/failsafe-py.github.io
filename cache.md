@@ -13,23 +13,23 @@ Cache policies limit unnecessary load by serving previous execution results, ski
 
 ## Usage
 
+Creating and using a `CachePolicy` for a cache is simple:
+
 ```python
 from failsafe import CachePolicy, Failsafe
 
+# Store users under a "user:<id>" key in the cache
 cache = CachePolicy(backend, key=lambda user_id: f"user:{user_id}")
-users = Failsafe(cache)
 
-user = users.call(fetch_user, 42)   # miss: calls fetch_user, stores the result
-user = users.call(fetch_user, 42)   # hit: fetch_user is never called
+# Get a user from the cache, else fetch one
+user = Failsafe(cache).call(fetch_user, 42)
 ```
 
-Composed outermost, a hit skips every policy inside it, which is usually what you want: a cached result needs no retry, no circuit breaker and no rate limiter.
-
-```python
-Failsafe(cache, retry, breaker).call(fetch_user, 42)
-```
+Composed outermost, a cache hit skips every policy inside it.
 
 ## Cache Keys Come from the Arguments
+
+<!-- TODO(ndumazet): inspect — key= callable vs an ambient key. -->
 
 The `key` callable receives the call's arguments and returns the key, shaped like [`functools.lru_cache`][lru-cache]:
 
@@ -49,6 +49,8 @@ CachePolicy(backend, key=lambda req: None if req.no_cache else req.url)
 [lru-cache]: https://docs.python.org/3/library/functools.html#functools.lru_cache
 
 ## The Cache Backend
+
+<!-- TODO(ndumazet): inspect — the Cache protocol and get() presence flag. -->
 
 A backend needs two methods:
 

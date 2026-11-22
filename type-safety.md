@@ -13,6 +13,8 @@ failsafe-py ships [`py.typed`][py-typed] and is checked with `mypy --strict` and
 
 ## Result Types Are Inferred per Call
 
+<!-- TODO(ndumazet): inspect — per-call R inference vs Generic[R]. -->
+
 Policies are not generic; `Failsafe.call` is. The result type comes from the function you execute, not from the policy you built:
 
 ```python
@@ -31,6 +33,8 @@ This is deliberate. A `Generic[R]` executor defaulting to `Any` needs [PEP 696] 
 
 ## Decorated Functions Keep Their Signature
 
+<!-- TODO(ndumazet): inspect — ParamSpec on the decorator. -->
+
 The decorator is typed with [`ParamSpec`][paramspec], so arguments and return type survive:
 
 ```python
@@ -44,6 +48,8 @@ charge("acct-1", 10)              # error: Argument 2 has incompatible type "int
 ```
 
 ## Typing Conditions and Listeners
+
+<!-- TODO(ndumazet): inspect — Condition type and Any-typed event results. -->
 
 `handle` and `abort` accept the same [`Condition`][failure-handling] type everywhere — an exception type, a tuple of them, a `Result(value)`, a predicate, or a sequence of those:
 
@@ -74,15 +80,5 @@ def log_status(e: ExecutionEvent) -> None:
 ```
 
 That cast is the cost of inferring `R` per call rather than fixing it at construction, and it is paid only inside listeners.
-
-## Checking Your Own Code
-
-Nothing special is required — the package is typed, so `mypy` and pyright resolve it from the installed wheel:
-
-```bash
-mypy --strict your_package
-```
-
-If a type checker reports `Skipping analyzing "failsafe"`, the installed distribution is not failsafe-py. The package name on PyPI is `failsafe-py`; the import name is `failsafe`.
 
 {% include common-links.html %}

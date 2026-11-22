@@ -41,18 +41,8 @@ For example: 100 reqs/sec × 1 sec/req is an average concurrency of 100. Limit t
 
 Bulkheads avoid this because they limit concurrency, and therefore load, directly. When the request rate or response times change, the concurrency limit is unchanged. Of course, bulkheads still require static configuration. For something that adapts to changes in load or capacity, consider an [adaptive limiter][adaptive-limiters].
 
-### Adaptive Limiters vs Circuit Breakers
-
-Both react to overload, but a [circuit breaker][circuit-breakers] needs *failures* — timeouts, errors — to drive it, while an [adaptive limiter][adaptive-limiters] detects unusual latency before large numbers of timeouts occur. A breaker also rejects everything for a period; a limiter maintains a working concurrency limit throughout.
-
-### Adaptive Throttlers vs Circuit Breakers
-
-Both limit on recent failures. A [circuit breaker][circuit-breakers] is open or closed for everyone; an [adaptive throttler][adaptive-throttlers] rejects *probabilistically*, in proportion to the failure rate. Execution flows stay smoother, and recovery is detected sooner because probe traffic never stops.
-
 ## Preferences
 
-For guarding against system overload, prefer reactive limiters, and in particular prefer adaptive limiters over circuit breakers, since they respond more quickly to indications of overload.
-
-When load must be shed, shed it selectively rather than at random: see [execution prioritization][execution-prioritization], which rejects low-priority executions — and the heaviest users — before high-priority ones.
+For guarding against system overload, prefer *reactive* limiters, and in particular, prefer adaptive limiters over circuit breakers since they respond more quickly to indications of overload.
 
 {% include common-links.html %}

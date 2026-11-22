@@ -167,13 +167,7 @@ AdaptiveLimiter(
 
 ### Metrics
 
-| | |
-|---|---|
-| `limiter.limit` | the current concurrency limit |
-| `limiter.inflight` | executions running right now |
-| `limiter.queued` | executions waiting for a permit |
-| `limiter.max_inflight` | peak inflight during the last sampling window |
-| `limiter.queueing` | whether queueing is enabled |
+`AdaptiveLimiter` provides metrics that include the current `limit`, `inflight` executions, and `queued` executions.
 
 ## Standalone Usage
 

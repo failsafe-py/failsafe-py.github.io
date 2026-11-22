@@ -9,59 +9,24 @@ title: Event Listeners
 1. TOC
 {:toc}
 
-failsafe-py supports event listeners on policies. Every policy takes them as constructor keyword arguments.
-
-## There Is No Executor-Level Listener
-
-`Failsafe` and `AsyncFailsafe` take only policies and a clock. Listeners belong to policies, because a policy is what decides whether an outcome was a success or a failure.
-
-To observe the final result of a composition, use the outermost policy's listeners — they see exactly what that policy decided:
-
-```python
-payments = Failsafe(
-    Fallback(
-        value=CACHED,
-        on_success=lambda e: logger.info("connected: %r", e.result),
-        on_failure=lambda e: logger.error("failed: %s", e.exception),
-    ),
-    retry,
-    breaker,
-)
-```
-
-For something that must run on every call regardless of composition, wrap the call site — a decorator or a `try`/`finally` is clearer than a hook whose firing conditions depend on what the innermost policy did.
+failsafe-py supports event listeners on policies, configured as constructor keyword arguments.
 
 ## Policy Listeners
 
-Policies that can be configured to handle specific results or exceptions — [`RetryPolicy`][retry], [`CircuitBreaker`][circuit-breakers], [`AdaptiveThrottler`][adaptive-throttlers], [`Fallback`][fallbacks] — provide listeners that fire when an attempt succeeds or fails according to *that policy's* [failure handling configuration][failure-handling]:
+Policies that can be configured to handle specific results or exceptions, such as [RetryPolicy][retry], [CircuitBreaker][circuit-breakers], [AdaptiveThrottler][adaptive-throttlers], and [Fallback][fallbacks], provide event listeners that indicate when an execution attempt succeeds or fails according to that policy's [failure handling configuration][failure-handling]:
 
 ```python
 RetryPolicy(
-    on_success=lambda e: logger.info("connected: %r", e.result),
-    on_failure=lambda e: logger.error("attempt failed: %s", e.exception),
+    on_success=lambda e: logger.info("Connected: %r", e.result),
+    on_failure=lambda e: logger.error("Failed to create connection: %s", e.exception),
 )
 ```
 
-Additional listeners are available per policy: `on_retry`, `on_state_change`, `on_limit_changed`, `on_full`, and so on. Each policy page documents its own.
-
-## Events
-
-| Event | Fields |
-|---|---|
-| `ExecutionEvent` | `execution`, `result`, `exception`, plus `attempts`, `retries`, `elapsed` |
-| `ScheduledRetryEvent` | the above, plus `delay` — the delay about to elapse |
-| `ExecutionCompletedEvent` | `execution`, `result`, `exception` |
-| `StateChangedEvent` | `previous_state`, `state` |
-| `LimitChangedEvent` | `old_limit`, `new_limit` |
-| `ThresholdChangedEvent` | `old_threshold`, `new_threshold` |
-
-All are frozen dataclasses. `e.result` is typed `Any`, because the result type is inferred per call rather than fixed on the policy; see [type safety][type-safety].
+Additional listeners are available for different policies.
 
 ## Listeners Are Sync
 
-Listeners are plain functions, not coroutines. A coroutine listener cannot be awaited from sync code, so neither driver accepts one.
-
-Listeners are for logging and metrics. If one genuinely needs to do I/O, hand the work off:
+Listeners are plain functions, not coroutines, in both sync and async executions. If a listener needs to do I/O, hand the work off:
 
 ```python
 RetryPolicy(on_retry=lambda e: asyncio.get_running_loop().create_task(report(e)))
@@ -69,6 +34,6 @@ RetryPolicy(on_retry=lambda e: asyncio.get_running_loop().create_task(report(e))
 
 ## Alternative Execution Results
 
-Event listeners are for side effects. They do not influence the outcome of an execution — a listener's return value is ignored, and a raised exception is swallowed. To provide an alternative result, use a [`Fallback`][fallbacks].
+Event listeners are meant for side effects such as logging and metrics. They do not influence the outcome of an execution. To provide an alternative execution result, use a [Fallback][fallbacks].
 
 {% include common-links.html %}

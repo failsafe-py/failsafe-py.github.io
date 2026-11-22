@@ -77,32 +77,15 @@ throttler = AdaptiveThrottler().prioritized_by(throttle_prioritizer())
 
 ### Event Listeners
 
-Adaptive throttlers support the standard [policy listeners][policy-listeners]:
-
-```python
-AdaptiveThrottler(on_failure=lambda e: metrics.incr("throttler.failure"))
-```
-
-These do **not** fire for a throttled rejection: a rejection is not an execution result, and it is not recorded in the window either.
+Adaptive throttlers support the standard [policy listeners][policy-listeners]. These do not fire for a throttled rejection.
 
 ### Metrics
 
-| | |
-|---|---|
-| `throttler.rejection_rate` | share currently being rejected, 0 to 1 |
-| `throttler.executions` | recorded within the thresholding period |
-| `throttler.successes` | successes in that period |
-| `throttler.failures` | failures in that period |
-
-### Deterministic Tests
-
-Rejection is a random draw, so the source is injectable:
-
-```python
-AdaptiveThrottler(rng=random.Random(42), clock=fake_clock)
-```
+`AdaptiveThrottler` provides metrics that include the current `rejection_rate`, along with the `executions`, `successes` and `failures` recorded within the thresholding period.
 
 ## Standalone Usage
+
+An `AdaptiveThrottler` can also be manually operated in a standalone way:
 
 ```python
 if throttler.try_acquire_permit():
@@ -113,15 +96,6 @@ if throttler.try_acquire_permit():
         raise
     else:
         throttler.record_success()
-```
-
-`record_result(outcome)` records an `Outcome` judged by the throttler's own `handle` condition, which is what the executor uses.
-
-A raising variant is available for both sync and async callers:
-
-```python
-throttler.acquire_permit()
-await throttler.acquire_permit_async()
 ```
 
 ## Best Practices

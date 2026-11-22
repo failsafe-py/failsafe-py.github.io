@@ -13,7 +13,7 @@ Fallbacks handle failed executions by providing an alternative result or excepti
 
 ## Usage
 
-A `Fallback` takes either an alternative result:
+There are a few different options for creating a `Fallback`. You can provide an alternative result:
 
 ```python
 from failsafe import Fallback
@@ -21,26 +21,13 @@ from failsafe import Fallback
 fallback = Fallback(value=default_result)
 ```
 
-Or a function that computes one from the [execution][execution-info]:
+Or compute a different result or exception:
 
 ```python
 fallback = Fallback(fn=lambda ex: connect_to_backup(backup_config))
 ```
 
-The function receives the `Execution`, whose `last_result` and `last_exception` describe the failure being handled:
-
-```python
-fallback = Fallback(fn=lambda ex: from_cache(ex.last_exception.request.url))
-```
-
-An exception raised by that function replaces the original, which is how you substitute one exception for another:
-
-```python
-def reraise(ex):
-    raise ServiceUnavailable("payments down") from ex.last_exception
-
-fallback = Fallback(fn=reraise)
-```
+The function receives the [execution][execution-info], whose `last_result` and `last_exception` describe the failure being handled. An exception it raises replaces the original.
 
 Using a `Fallback` is simple:
 

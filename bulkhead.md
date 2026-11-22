@@ -26,8 +26,6 @@ Failsafe(bulkhead).call(send_request)
 
 Executions are permitted until the bulkhead is full, meaning the max number of concurrent executions has been reached. Further executions either fail with `BulkheadFull` or wait until permitted.
 
-A permit is held for a single **attempt** and released when that attempt finishes, so a [`RetryPolicy`][retry] composed outside a bulkhead re-acquires for each retry rather than holding a permit across the delay between them.
-
 ## Configuration
 
 ### Waiting
@@ -52,14 +50,6 @@ Bulkhead(10, on_full=lambda e: logger.error("Bulkhead full"))
 
 The listener does not run when an execution fails to acquire a permit for another reason, such as cancellation.
 
-### Metrics
-
-| | |
-|---|---|
-| `bulkhead.max_concurrency` | the configured limit |
-| `bulkhead.used` | permits currently held |
-| `bulkhead.waiters` | callers blocked waiting for a permit |
-
 ## Standalone Usage
 
 A `Bulkhead` can also be manually operated:
@@ -72,26 +62,12 @@ if bulkhead.try_acquire_permit():
         bulkhead.release_permit()
 ```
 
-Blocking acquisition has a sync and an async method, both drawing on the same permit count:
-
 ```python
 bulkhead.acquire_permit(timeout=1.0)
 await bulkhead.acquire_permit_async(timeout=1.0)
 ```
 
-There is no `with` form; wrap it yourself if you want one:
-
-```python
-@contextlib.contextmanager
-def permit(bulkhead):
-    bulkhead.acquire_permit()
-    try:
-        yield
-    finally:
-        bulkhead.release_permit()
-```
-
-Standalone permit methods do not call `on_full`. That listener applies to executions through Failsafe.
+Standalone permit methods do not call `on_full`. That listener only applies to executions through Failsafe.
 
 ## Best Practices
 
