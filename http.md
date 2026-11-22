@@ -53,8 +53,6 @@ It is an ordinary `RetryPolicy` with two defaults filled in, so every retry para
 
 ### What Counts as Retryable
 
-<!-- TODO(ndumazet): inspect — confirm the retryable set. -->
-
 `is_retryable` is the default condition, and is usable on its own:
 
 ```python
@@ -65,11 +63,8 @@ breaker = CircuitBreaker(handle=is_retryable)
 
 | Retryable | Not retryable |
 |---|---|
-| Any `httpx.TransportError`: connection failures, timeouts, read errors | 4xx the server answered deliberately, other than 408 and 429 |
-| Status 408, 429, and 5xx other than 501 | Unsupported scheme, invalid URL, too many redirects |
-
-{: .callout }
-> **408 is treated as retryable.** It is the server saying it gave up waiting for the request, which is exactly the transient condition a retry addresses.
+| Any `httpx.TransportError`: connection failures, timeouts, read errors | A 4xx the server answered deliberately |
+| [429][429], and 5xx other than [501][501] | Unsupported scheme, invalid URL, too many redirects |
 
 ### Return Value
 
@@ -79,7 +74,7 @@ A failing response is still a response. When the retries are exhausted, `retry_p
 response = client.get(url)   # a 500 after 3 attempts, not an exception
 ```
 
-This is `return_last_failure=True`, which `retry_policy()` sets by default. Pass `return_last_failure=False` to raise instead.
+This is [`return_last_failure=True`][retry-return-value], which `retry_policy()` sets by default. Pass `return_last_failure=False` to raise instead.
 
 ## Handling Retry-After
 
@@ -92,4 +87,10 @@ from failsafe.httpx import retry_after_delay
 breaker = CircuitBreaker(handle=lambda r, e: r is not None and r.status_code == 429, delay=retry_after_delay)
 ```
 
+Only [429][429] and [503][503] responses are consulted.
+
 {% include common-links.html %}
+
+[429]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429
+[501]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/501
+[503]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/503

@@ -20,7 +20,7 @@ What no other library offers is [composition][policy-composition] — retries, c
 [tenacity] is the de-facto Python retry library. It differs from failsafe-py's [RetryPolicy][retry] in a few ways:
 
 - failsafe-py retries are one policy among several that [compose][policy-composition]. tenacity solves retries only.
-- failsafe-py retries can be [aborted][aborts] on specific results, exceptions, or conditions.
+- failsafe-py retries can be aborted on specific results, exceptions, or conditions.
 - failsafe-py retries can be bounded system-wide by a [budget][budgets].
 - failsafe-py shares one policy instance between sync and async callers; tenacity has separate `Retrying` and `AsyncRetrying` classes.
 
