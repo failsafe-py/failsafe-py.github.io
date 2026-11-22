@@ -42,7 +42,7 @@ connection = Failsafe(fallback).call(connect)
 A `Fallback` can be configured to handle only [certain results, exceptions, or conditions][failure-handling] as failures:
 
 ```python
-Fallback(value=CACHED, handle=[ConnectionError, Result(None)])
+Fallback(value=CACHED, handle=[ConnectionError, lambda result, exc: result is None])
 ```
 
 By default *any* exception fires the fallback, including `RetriesExceeded`, `CircuitBreakerOpen` and `TimeoutExceeded` from inner policies. That is usually what you want from an outermost fallback, but narrow it if not:

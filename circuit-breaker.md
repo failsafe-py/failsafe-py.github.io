@@ -41,7 +41,7 @@ Half-open admits a **bounded** number of concurrent trials, capped at the succes
 A `CircuitBreaker` can be configured to handle only [certain results, exceptions, or conditions][failure-handling] as failures:
 
 ```python
-CircuitBreaker(handle=[ConnectionError, Result(None)])
+CircuitBreaker(handle=[ConnectionError, lambda result, exc: result is None])
 ```
 
 ### Opening

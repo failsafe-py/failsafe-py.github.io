@@ -33,18 +33,16 @@ RetryPolicy(handle=[ConnectionError, lambda r, e: r is not None and r.status_cod
 
 The same conditions are accepted wherever a policy asks "does this outcome match?": `abort=` on retries, `cancel_on=` on hedges, `cache_if=` on caches.
 
-### Matching a Value with `Result`
+### Matching an Awkward Value
 
-A bare value works everywhere it is unambiguous. Wrap it in `Result` where it would read as something else — inside a list, which already means "any of these", or when the value is itself a tuple, a list, or callable:
+A bare value works wherever it is unambiguous. Where it is not, write a predicate — inside a list, which already means "any of these conditions", or when the value is itself a tuple, a list, or callable:
 
 ```python
-from failsafe import Result
-
-RetryPolicy(handle=[Result("unavailable"), ConnectionError])
-RetryPolicy(handle=Result((1, 2)))
+RetryPolicy(handle=[ConnectionError, lambda result, exc: result == "unavailable"])
+RetryPolicy(handle=lambda result, exc: result == (1, 2))
 ```
 
-A class is callable, so matching a returned *instance* needs `Result(instance)`; a bare class is taken as a predicate. A list containing a bare value, and an empty list, both raise `TypeError`.
+A list containing a bare value, and an empty list, both raise `TypeError` rather than guessing.
 
 ### Results Do Not Replace Error Handling
 

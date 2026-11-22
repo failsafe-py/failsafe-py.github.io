@@ -30,7 +30,7 @@ connection = Failsafe(retry).call(connect, host)
 A `RetryPolicy` can be configured to handle only [certain results, exceptions, or conditions][failure-handling] as failures:
 
 ```python
-RetryPolicy(handle=[ConnectionError, Result(None)])
+RetryPolicy(handle=[ConnectionError, lambda result, exc: result is None])
 ```
 
 ### Max Retries

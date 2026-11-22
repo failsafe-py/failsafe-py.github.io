@@ -42,7 +42,7 @@ Adaptive throttlers are similar to [circuit breakers][circuit-breakers] in that 
 An `AdaptiveThrottler` can be configured to handle only [certain results, exceptions, or conditions][failure-handling] as failures:
 
 ```python
-AdaptiveThrottler(handle=[ConnectionError, Result(None)])
+AdaptiveThrottler(handle=[ConnectionError, lambda result, exc: result is None])
 ```
 
 ### Failure Rate Threshold
