@@ -114,22 +114,39 @@ RetryPolicy(budget=budget)
 
 ### Return Value
 
-<!-- TODO(ndumazet): inspect — RetriesExceeded vs return_last_failure. -->
-
-By default, when an execution fails and the retries are exhausted, `RetriesExceeded` is raised, carrying the last result and exception, and chaining the original as `__cause__`:
+By default, when an execution fails and the retries are exhausted, `RetriesExceeded` is raised. It carries the last result and exception, and chains the original as `__cause__`:
 
 ```python
 try:
     response = Failsafe(retry).call(send_message)
 except RetriesExceeded as e:
-    logger.error("Failed to send message", extra={"response": e.last_result, "error": e.last_exception})
+    logger.error("Failed", extra={"response": e.last_result, "error": e.last_exception})
 ```
 
-A `RetryPolicy` can instead return or raise the last failure itself:
+`return_last_failure=True` hands back the last failure itself instead:
 
 ```python
 RetryPolicy(return_last_failure=True)
 ```
+
+What that means depends on how the last attempt failed:
+
+| Last attempt | Default | `return_last_failure=True` |
+|---|---|---|
+| raised an exception | raises `RetriesExceeded` | re-raises that exception |
+| returned a handled value | raises `RetriesExceeded` | **returns the value** |
+
+The second row is the useful one. A policy with `handle=500` that exhausts its retries returns `500` to the caller — no exception is raised at all, so a bare `try`/`except` will not see it:
+
+```python
+retry = RetryPolicy(handle=500, return_last_failure=True)
+
+status = Failsafe(retry).call(send_message)   # 500 after the last attempt
+if status == 500:
+    ...
+```
+
+This is what [`failsafe.httpx.retry_policy()`][http] sets by default: a failing response is still a response worth inspecting.
 
 If additional handling or an alternative result is needed, compose a [fallback][fallbacks] around the retry policy.
 
