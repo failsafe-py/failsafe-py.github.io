@@ -30,6 +30,8 @@ Under `AsyncFailsafe` the awaiting attempt is interrupted, so the limit bounds t
 
 ## Warning regarding Sync Timeouts
 
+_This section does not apply to Async users._
+
 Python cannot interrupt a running function. A sync `Timeout` checks the deadline *between* policy steps, so a call that blocks straight through simply runs to completion. Example:
 
 ```python
