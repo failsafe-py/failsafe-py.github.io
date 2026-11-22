@@ -761,7 +761,7 @@ py:
 
 ### NEW · `## Typing Conditions and Listeners` · 0w → 84w
 
-VERDICT: ?
+VERDICT: add a TODO
 
 py:
 
@@ -770,7 +770,7 @@ py:
 
 ### NEW · `## Checking Your Own Code` · 0w → 45w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -779,7 +779,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `## Mixing Result Types`
 
@@ -791,7 +791,7 @@ go 216w → py 336w (+120)
 
 ### GROWN · `# Execution Budgets` · 37w → 70w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -806,7 +806,7 @@ py:
 
 ### GROWN · `## How It Works` · 34w → 72w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -821,7 +821,7 @@ py:
 
 ### GROWN · `### Min Concurrency` · 16w → 43w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -836,7 +836,7 @@ py:
 
 ### GROWN · `## Best Practices` · 21w → 37w
 
-VERDICT: ?
+VERDICT: keep
 
 <details><summary>go</summary>
 
@@ -851,7 +851,7 @@ py:
 
 ### NEW · `## Standalone Usage` · 0w → 0w
 
-VERDICT: ?
+VERDICT: zero to zero? confused
 
 py:
 
@@ -865,7 +865,7 @@ go 190w → py 306w (+116)
 
 ### NEW · `## There Is No Executor-Level Listener` · 0w → 85w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -874,7 +874,7 @@ py:
 
 ### NEW · `## Events` · 0w → 81w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -883,7 +883,7 @@ py:
 
 ### NEW · `## Listeners Are Sync` · 0w → 37w
 
-VERDICT: ?
+VERDICT: i feel like i'm seeing this in several places. I only want it in /event-listeners/
 
 py:
 
@@ -892,7 +892,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `## Executor Listeners`
 
@@ -904,7 +904,7 @@ go 118w → py 221w (+103)
 
 ### GROWN · `## Usage` · 10w → 28w
 
-VERDICT: ?
+VERDICT: trim and follow Go style
 
 <details><summary>go</summary>
 
@@ -919,7 +919,7 @@ py:
 
 ### NEW · `## Cache Keys Come from the Arguments` · 0w → 66w
 
-VERDICT: ?
+VERDICT: add a TODO
 
 py:
 
@@ -928,7 +928,7 @@ py:
 
 ### NEW · `## The Cache Backend` · 0w → 78w
 
-VERDICT: ?
+VERDICT: add a TODO
 
 py:
 
@@ -937,7 +937,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `### Cache Keys`
 
@@ -949,7 +949,7 @@ go 271w → py 359w (+88)
 
 ### GROWN · `## How It Works` · 33w → 63w
 
-VERDICT: ?
+VERDICT: follow go style / length
 
 <details><summary>go</summary>
 
@@ -964,7 +964,7 @@ py:
 
 ### NEW · `### Metrics` · 0w → 28w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -973,7 +973,7 @@ py:
 
 ### GROWN · `## Standalone Usage` · 29w → 49w
 
-VERDICT: ?
+VERDICT: follow go style
 
 <details><summary>go</summary>
 
@@ -993,7 +993,7 @@ go 181w → py 254w (+73)
 
 ### GROWN · `# Overview` · 55w → 87w
 
-VERDICT: ?
+VERDICT: trim and follow go style. You can add a box mentioning that this is an alpha agentic rewrite of failsafe-go
 
 <details><summary>go</summary>
 
@@ -1008,7 +1008,7 @@ py:
 
 ### NEW · `## Installation` · 0w → 0w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -1017,7 +1017,7 @@ py:
 
 ### NEW · `### Reusing a Composition` · 0w → 50w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -1026,7 +1026,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `### Executor`
 
@@ -1038,7 +1038,7 @@ go 318w → py 380w (+62)
 
 ### NEW · `### Max Retries` · 0w → 37w
 
-VERDICT: ?
+VERDICT: keep
 
 py:
 
@@ -1047,7 +1047,7 @@ py:
 
 ### GROWN · `### Jitter` · 28w → 57w
 
-VERDICT: ?
+VERDICT: "rather than a separate parameter" anchors in the Go implementation, we dont care
 
 <details><summary>go</summary>
 
@@ -1062,7 +1062,7 @@ py:
 
 ### NEW · `### Aborts` · 0w → 37w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -1071,7 +1071,7 @@ py:
 
 ### NEW · `### Raised Exception` · 0w → 53w
 
-VERDICT: ?
+VERDICT: add a TODO
 
 py:
 
@@ -1080,7 +1080,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: return value feels important to keep
 
 - `### Max Attempts`
 - `### Abort`
@@ -1094,7 +1094,7 @@ go 383w → py 416w (+33)
 
 ### GROWN · `### Event Listeners` · 7w → 31w
 
-VERDICT: ?
+VERDICT: follow go style and lenght
 
 <details><summary>go</summary>
 
@@ -1109,7 +1109,7 @@ py:
 
 ### GROWN · `### Metrics` · 9w → 40w
 
-VERDICT: ?
+VERDICT: trim
 
 <details><summary>go</summary>
 
@@ -1124,7 +1124,7 @@ py:
 
 ### NEW · `### Deterministic Tests` · 0w → 10w
 
-VERDICT: ?
+VERDICT: cut (and any other such mentions anywhere else)
 
 py:
 
@@ -1133,7 +1133,7 @@ py:
 
 ### GROWN · `## Standalone Usage` · 11w → 28w
 
-VERDICT: ?
+VERDICT: trim and follow Go style
 
 <details><summary>go</summary>
 
@@ -1153,7 +1153,7 @@ go 122w → py 145w (+23)
 
 ### GROWN · `## Usage` · 31w → 53w
 
-VERDICT: ?
+VERDICT: trim and follow Go style
 
 <details><summary>go</summary>
 
@@ -1173,7 +1173,7 @@ go 419w → py 440w (+21)
 
 ### GROWN · `## How It Works` · 28w → 49w
 
-VERDICT: ?
+VERDICT: trim and follow Go style
 
 <details><summary>go</summary>
 
@@ -1188,7 +1188,7 @@ py:
 
 ### GROWN · `## Standalone Usage` · 28w → 60w
 
-VERDICT: ?
+VERDICT: trim and follow Go style
 
 <details><summary>go</summary>
 
@@ -1203,7 +1203,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `## Performance`
 
@@ -1215,7 +1215,7 @@ go 603w → py 603w (+0)
 
 ### NEW · `### Adaptive Limiters vs Circuit Breakers` · 0w → 46w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -1224,7 +1224,7 @@ py:
 
 ### NEW · `### Adaptive Throttlers vs Circuit Breakers` · 0w → 39w
 
-VERDICT: ?
+VERDICT: cut
 
 py:
 
@@ -1233,7 +1233,7 @@ py:
 
 ### GROWN · `## Preferences` · 26w → 54w
 
-VERDICT: ?
+VERDICT: trim and follow Go writing style
 
 <details><summary>go</summary>
 
@@ -1253,7 +1253,7 @@ go 674w → py 587w (-87)
 
 ### GROWN · `### Half-Opening` · 53w → 80w
 
-VERDICT: ?
+VERDICT: trim and follow Go writing style
 
 <details><summary>go</summary>
 
@@ -1268,7 +1268,7 @@ py:
 
 ### GROWN · `## Standalone Usage` · 11w → 24w
 
-VERDICT: ?
+VERDICT: trim and follow Go writing style
 
 <details><summary>go</summary>
 
@@ -1283,7 +1283,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `## Additional Details`
 - `### Time Based Resolution`
@@ -1297,7 +1297,7 @@ go 1222w → py 990w (-232)
 
 ### NEW · `### Metrics` · 0w → 48w
 
-VERDICT: ?
+VERDICT: trim
 
 py:
 
@@ -1306,7 +1306,7 @@ py:
 
 ### DROPPED · sections in the Go page with no py counterpart
 
-VERDICT: ?
+VERDICT: ok
 
 - `### Logging and Metrics`
 - `## Additional Details`
