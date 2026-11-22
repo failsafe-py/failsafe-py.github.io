@@ -28,7 +28,7 @@ client = httpx.Client(transport=FailsafeTransport(retry_policy(max_retries=3), b
 client.get("https://example.com")
 ```
 
-The async client takes `AsyncFailsafeTransport`, which shares policy state with its sync counterpart when built from the same policy objects — one circuit breaker can guard both:
+The async client takes `AsyncFailsafeTransport`:
 
 ```python
 from failsafe.httpx import AsyncFailsafeTransport

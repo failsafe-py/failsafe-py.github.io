@@ -9,6 +9,10 @@ title: Comparisons
 1. TOC
 {:toc}
 
+No Python library covers the whole set of policies failsafe-py does. The comparisons below are therefore per policy: each library named here solves one of them, and solves it well. If you need only that one, it is a reasonable choice.
+
+What no other library offers is [composition][policy-composition] — retries, circuit breaking, timeouts, bulkheads and load limiting under one ordering model, sharing state between sync and async callers.
+
 ## Retries
 
 ### failsafe-py vs tenacity
@@ -22,13 +26,7 @@ title: Comparisons
 
 If retries are your whole problem, tenacity is mature and widely deployed.
 
-### failsafe-py vs backoff
-
-[backoff] is a decorator-based retry library with exponential backoff and jitter. It is less actively developed than tenacity but still widely installed.
-
-- Same compositional point as above: backoff is retries only.
-- backoff decorates a function at definition time. failsafe-py's [`Failsafe`][policy-sharing] object is built once and applied at as many call sites as you like, which matters for the stateful policies it composes with.
-- backoff's `max_time` and failsafe-py's `max_duration` are equivalent; failsafe-py additionally clamps the delay so a long backoff never overshoots the budget.
+[backoff] is the other retry library you will see in older code. It was archived in 2024, so it is worth knowing about only to recognise it.
 
 ## Circuit Breakers
 
