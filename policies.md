@@ -58,9 +58,14 @@ Only a condition that handles exceptions replaces the default.
 
 ### Exception Chains
 
-<!-- TODO(ndumazet): inspect — `__cause__` walking depth and ExceptionGroup handling. -->
+An exception matches if it is an instance of a handled type, or if any exception in its `__cause__` chain is. Only `__cause__` is followed — explicit `raise ... from` chaining — because walking `__context__` would match exceptions raised incidentally while handling something else. For an `ExceptionGroup`, any matching leaf matches.
 
-An exception matches if it is an instance of a handled type, or if any exception in its `__cause__` chain is. The chain is walked depth-limited and only through `__cause__` — explicit chaining — because walking `__context__` would match exceptions raised incidentally while handling something else. For an `ExceptionGroup`, any matching leaf matches.
+Policies chain the failure they wrap, so an outer policy matches the original exception without naming the policy exception:
+
+```python
+# matches a ConnectionError that an inner RetryPolicy exhausted its attempts on
+Fallback(value=CACHED, handle=ConnectionError)
+```
 
 ## Policy Composition
 
@@ -107,8 +112,6 @@ Consider an execution of the following policy composition:
 - `call` returns the final result, or raises
 
 ### Composition and Exception Handling
-
-<!-- TODO(ndumazet): inspect. -->
 
 While policies handle all `Exception` instances by default, it is common to configure a policy to handle something more specific, as [described above](#failure-handling):
 
