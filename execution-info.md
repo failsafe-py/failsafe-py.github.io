@@ -5,7 +5,7 @@ title: Execution Info
 
 # Execution Info
 
-`current_execution()` returns an `Execution` containing execution related information such as the number of execution attempts, start and elapsed times, and the last result or exception:
+`current_execution()` returns an [`Execution`][Execution] containing execution related information such as the number of execution attempts, start and elapsed times, and the last result or exception:
 
 ```python
 from failsafe import Failsafe, current_execution
@@ -25,7 +25,7 @@ def next_page(cursor):
     return api.page(after=last.cursor if last else cursor)
 ```
 
-The `Execution` can also tell you if an execution is a retry, a hedge, or the first attempt:
+The [`Execution`][Execution] can also tell you if an execution is a retry, a hedge, or the first attempt:
 
 ```python
 def connect(host):
@@ -38,7 +38,7 @@ It is a [contextvar][contextvars], so it is available from any function the exec
 
 ## Deadlines
 
-`remaining()` returns the seconds left before the execution's deadline, or `None` if none is set. Pass it to whatever does the I/O, so a [`Timeout`][timeouts] or a retry `max_duration` reaches your call:
+`remaining()` returns the seconds left before the execution's deadline, or `None` if none is set. Pass it to whatever does the I/O, so a [`Timeout`][Timeout] or a retry `max_duration` reaches your call:
 
 ```python
 def connect(host):

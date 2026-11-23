@@ -13,7 +13,7 @@ Timeouts fail executions that take too long to complete, or limit load on system
 
 ## Usage
 
-Creating and using a `Timeout` is simple:
+Creating and using a [`Timeout`][Timeout] is simple:
 
 ```python
 from failsafe import Failsafe, Timeout
@@ -24,21 +24,21 @@ Failsafe(Timeout(timedelta(seconds=10))).call(connect)
 
 ## How It Works
 
-When the limit elapses, the execution and any policies composed *inside* the timeout fail with `TimeoutExceeded`.
+When the limit elapses, the execution and any policies composed *inside* the timeout fail with [`TimeoutExceeded`][TimeoutExceeded].
 
-Under `AsyncFailsafe` the awaiting attempt is interrupted, so the limit bounds the time actually spent. Under `Failsafe` it cannot be, and that difference is worth understanding before you rely on a sync timeout.
+Under [`AsyncFailsafe`][AsyncFailsafe] the awaiting attempt is interrupted, so the limit bounds the time actually spent. Under [`Failsafe`][Failsafe] it cannot be, and that difference is worth understanding before you rely on a sync timeout.
 
 ## Warning regarding Sync Timeouts
 
 _This section does not apply to Async users._
 
-Python cannot interrupt a running function. A sync `Timeout` checks the deadline *between* policy steps, so a call that blocks straight through simply runs to completion. Example:
+Python cannot interrupt a running function. A sync [`Timeout`][Timeout] checks the deadline *between* policy steps, so a call that blocks straight through simply runs to completion. Example:
 
 ```python
 Failsafe(Timeout(2.0)).call(time.sleep, 20)
 ```
 
-That waits 20 seconds and then raises `TimeoutExceeded`.
+That waits 20 seconds and then raises [`TimeoutExceeded`][TimeoutExceeded].
 
 
 ### 1. Using httpx? It already works
@@ -78,7 +78,7 @@ It is a *limited* workaround. It needs the callee to cooperate, which rules out 
 
 ### 3. Prefer Async for Anything More Involved
 
-`AsyncFailsafe` just works. Async Python will be a lot easier to write. `asyncio.timeout` interrupts the attempt wherever it is awaiting, so the limit holds without the callee knowing it exists:
+[`AsyncFailsafe`][AsyncFailsafe] just works. Async Python will be a lot easier to write. `asyncio.timeout` interrupts the attempt wherever it is awaiting, so the limit holds without the callee knowing it exists:
 
 ```python
 await AsyncFailsafe(Timeout(2.0)).call(asyncio.sleep, 20)   # raises in ~2s
@@ -88,27 +88,27 @@ If you are composing timeouts with retries, hedges, or anything where bounded la
 
 ## Timeouts with Retries
 
-When a `Timeout` is composed *outside* a [`RetryPolicy`][retry], the limit covers every attempt together, and a timeout ends the retries:
+When a [`Timeout`][Timeout] is composed *outside* a [`RetryPolicy`][RetryPolicy], the limit covers every attempt together, and a timeout ends the retries:
 
 ```python
 Failsafe(Timeout(10.0), retry).call(connect)   # 10s for everything
 ```
 
-When a `Timeout` is composed *inside* a `RetryPolicy`, each attempt gets its own limit, and a timeout does not stop the outer retries:
+When a [`Timeout`][Timeout] is composed *inside* a [`RetryPolicy`][RetryPolicy], each attempt gets its own limit, and a timeout does not stop the outer retries:
 
 ```python
 Failsafe(retry, Timeout(10.0)).call(connect)   # 10s per attempt
 ```
 
-A `TimeoutExceeded` is an ordinary failure, so an outer retry policy retries it by default.
+A [`TimeoutExceeded`][TimeoutExceeded] is an ordinary failure, so an outer retry policy retries it by default.
 
 ## Timeout vs Cancellation
 
-A `TimeoutExceeded` is an ordinary failure, so an outer `RetryPolicy` can retry it. An [`asyncio.CancelledError`][cancelled-error] cannot: cancellation is terminal. Use a `Timeout` to bound execution time, and cancel the task to stop the execution outright.
+A [`TimeoutExceeded`][TimeoutExceeded] is an ordinary failure, so an outer [`RetryPolicy`][RetryPolicy] can retry it. An [`asyncio.CancelledError`][cancelled-error] cannot: cancellation is terminal. Use a [`Timeout`][Timeout] to bound execution time, and cancel the task to stop the execution outright.
 
 ## Event Listeners
 
-A `Timeout` can notify you when an attempt exceeds the limit:
+A [`Timeout`][Timeout] can notify you when an attempt exceeds the limit:
 
 ```python
 Timeout(10.0, on_timeout=lambda e: logger.error("connection timed out"))

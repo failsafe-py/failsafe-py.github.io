@@ -13,7 +13,7 @@ Cache policies limit unnecessary load by serving previous execution results, ski
 
 ## Usage
 
-Creating and using a `CachePolicy` for a cache is simple:
+Creating and using a [`CachePolicy`][CachePolicy] for a cache is simple:
 
 ```python
 from failsafe import CachePolicy, Failsafe

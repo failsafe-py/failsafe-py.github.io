@@ -44,7 +44,7 @@ def connect(host): ...
 
 ### Asynchronous Execution
 
-Executing a coroutine function [asynchronously][async-execution] *with* retries uses `AsyncFailsafe`, which takes the same policy objects:
+Executing a coroutine function [asynchronously][async-execution] *with* retries uses [`AsyncFailsafe`][AsyncFailsafe], which takes the same policy objects:
 
 ```python
 from failsafe import AsyncFailsafe

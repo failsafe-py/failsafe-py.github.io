@@ -13,7 +13,7 @@ Rate limiters are [load limiters][load-limiting] that limit the rate of executio
 
 ## How It Works
 
-When executions exceed the configured max per period, further executions either fail with `RateLimitExceeded` or wait until permitted.
+When executions exceed the configured max per period, further executions either fail with [`RateLimitExceeded`][RateLimitExceeded] or wait until permitted.
 
 ## Smooth Rate Limiter
 
@@ -50,7 +50,7 @@ Available permits can go negative: a burst of 10 against a limit of 2 leaves a d
 
 ### Waiting
 
-By default, an exceeded limiter fails further executions immediately with `RateLimitExceeded`. It can also wait for permission within a max wait time:
+By default, an exceeded limiter fails further executions immediately with [`RateLimitExceeded`][RateLimitExceeded]. It can also wait for permission within a max wait time:
 
 ```python
 limiter = RateLimiter.smooth(100, period=1.0, max_wait_time=1.0)
@@ -63,7 +63,7 @@ Actual wait times vary with how busy the limiter is, and grow if executions are 
 
 ### Event Listeners
 
-A `RateLimiter` can notify you when a limit has been exceeded by an execution attempt:
+A [`RateLimiter`][RateLimiter] can notify you when a limit has been exceeded by an execution attempt:
 
 ```python
 RateLimiter.smooth(100, period=1.0, on_rate_limit_exceeded=lambda e: logger.error("rate limited"))
@@ -71,7 +71,7 @@ RateLimiter.smooth(100, period=1.0, on_rate_limit_exceeded=lambda e: logger.erro
 
 ## Standalone Usage
 
-A `RateLimiter` can also be manually operated in a standalone way:
+A [`RateLimiter`][RateLimiter] can also be manually operated in a standalone way:
 
 ```python
 if limiter.try_acquire_permit():
@@ -88,7 +88,7 @@ if (wait := limiter.try_reserve_permit(max_wait_time=5.0)) is not None:
 
 ## Best Practices
 
-A `RateLimiter` can and *should* be shared across code that accesses a common dependency, so every execution reaching that dependency counts against the same limit. Construct it at module or DI scope — see [policy sharing][policy-sharing].
+A [`RateLimiter`][RateLimiter] can and *should* be shared across code that accesses a common dependency, so every execution reaching that dependency counts against the same limit. Construct it at module or DI scope — see [policy sharing][policy-sharing].
 
 For limiting *load* rather than *rate*, consider a [bulkhead][bulkheads], which limits concurrency directly, or an [adaptive limiter][adaptive-limiters], which discovers the limit. [Little's Law][littles-law] explains why: a fixed request rate does not fix concurrency when response times change.
 

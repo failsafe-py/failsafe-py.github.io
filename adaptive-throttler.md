@@ -29,7 +29,7 @@ response = Failsafe(throttler).call(fetch_data)
 
 ## How it Works
 
-Adaptive throttlers track recent failures over a time period. When the recent failure rate exceeds the configured threshold, the throttler starts probabilistically rejecting executions. The rejection rate increases with how far over the threshold the failure rate is, stopping at the max rate. Rejected executions fail with `ThrottleExceeded`.
+Adaptive throttlers track recent failures over a time period. When the recent failure rate exceeds the configured threshold, the throttler starts probabilistically rejecting executions. The rejection rate increases with how far over the threshold the failure rate is, stopping at the max rate. Rejected executions fail with [`ThrottleExceeded`][ThrottleExceeded].
 
 ## Policy Comparison
 
@@ -39,7 +39,7 @@ Adaptive throttlers are similar to [circuit breakers][circuit-breakers] in that 
 
 ### Failure Handling
 
-An `AdaptiveThrottler` can be configured to handle only [certain results, exceptions, or conditions][failure-handling] as failures:
+An [`AdaptiveThrottler`][AdaptiveThrottler] can be configured to handle only [certain results, exceptions, or conditions][failure-handling] as failures:
 
 ```python
 AdaptiveThrottler(handle=[ConnectionError, lambda result, exc: result is None])
@@ -81,11 +81,11 @@ Adaptive throttlers support the standard [policy listeners][policy-listeners]. T
 
 ### Metrics
 
-`AdaptiveThrottler` provides metrics that include the current `rejection_rate`, along with the `executions`, `successes` and `failures` recorded within the thresholding period.
+[`AdaptiveThrottler`][AdaptiveThrottler] provides metrics that include the current `rejection_rate`, along with the `executions`, `successes` and `failures` recorded within the thresholding period.
 
 ## Standalone Usage
 
-An `AdaptiveThrottler` can also be manually operated in a standalone way:
+An [`AdaptiveThrottler`][AdaptiveThrottler] can also be manually operated in a standalone way:
 
 ```python
 if throttler.try_acquire_permit():
@@ -100,11 +100,11 @@ if throttler.try_acquire_permit():
 
 ## Best Practices
 
-An `AdaptiveThrottler` can and *should* be shared across code that accesses a common dependency. Construct it at module or DI scope — see [policy sharing][policy-sharing].
+An [`AdaptiveThrottler`][AdaptiveThrottler] can and *should* be shared across code that accesses a common dependency. Construct it at module or DI scope — see [policy sharing][policy-sharing].
 
 ### Composing Adaptive Throttlers
 
-When [composing policies][policy-composition], it is recommended not to have a throttler handle exceptions from other policies, such as `BulkheadFull` or `RateLimitExceeded`. If an execution is rejected by some policy, there is no need for a throttler to count it too. Note that the default `handle=Exception` does catch those, so narrow it when composing a throttler outside a limiting policy.
+When [composing policies][policy-composition], it is recommended not to have a throttler handle exceptions from other policies, such as [`BulkheadFull`][BulkheadFull] or [`RateLimitExceeded`][RateLimitExceeded]. If an execution is rejected by some policy, there is no need for a throttler to count it too. Note that the default `handle=Exception` does catch those, so narrow it when composing a throttler outside a limiting policy.
 
 [throttling]: https://sre.google/sre-book/handling-overload/#client-side-throttling-a7sYUg
 

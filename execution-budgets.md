@@ -32,7 +32,7 @@ You can use the same budget for retries and hedges if you like.
 
 ## How It Works
 
-Budgets permit executions to proceed up to some max share of concurrent retries or hedges, after which a [`RetryPolicy`][retry] fails with `BudgetExceeded` and a [`HedgePolicy`][hedge] stops hedging. This allows a system-wide cap to be placed on retries or hedges.
+Budgets permit executions to proceed up to some max share of concurrent retries or hedges, after which a [`RetryPolicy`][RetryPolicy] fails with [`BudgetExceeded`][BudgetExceeded] and a [`HedgePolicy`][HedgePolicy] stops hedging. This allows a system-wide cap to be placed on retries or hedges.
 
 ## Comparison
 

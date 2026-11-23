@@ -13,7 +13,7 @@ Hedge policies are a way of bringing down long tail latencies by performing addi
 
 ## Async Only
 
-`HedgePolicy` is supported under [`AsyncFailsafe`][async-execution]. Under `Failsafe` it raises `NotImplementedError`, since a synchronous call cannot be cancelled and the losing hedges would run to completion.
+[`HedgePolicy`][HedgePolicy] is supported under [`AsyncFailsafe`][AsyncFailsafe]. Under [`Failsafe`][Failsafe] it raises `NotImplementedError`, since a synchronous call cannot be cancelled and the losing hedges would run to completion.
 
 ## Usage
 
@@ -28,7 +28,7 @@ response = await api.call(send_request)
 
 ### Max Hedges
 
-By default a `HedgePolicy` performs a single hedged execution if the original is not done before the delay:
+By default a [`HedgePolicy`][HedgePolicy] performs a single hedged execution if the original is not done before the delay:
 
 ```python
 HedgePolicy(0.1, max_hedges=2)
@@ -77,7 +77,7 @@ HedgePolicy(0.1, budget=budget)
 
 ### Event Listeners
 
-A `HedgePolicy` can notify you before each hedged attempt starts:
+A [`HedgePolicy`][HedgePolicy] can notify you before each hedged attempt starts:
 
 ```python
 HedgePolicy(0.1, on_hedge=lambda e: metrics.incr("hedge.started"))

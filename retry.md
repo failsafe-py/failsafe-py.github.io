@@ -9,11 +9,11 @@ title: Retry
 1. TOC
 {:toc}
 
-Retry policies retry failed executions a certain number of times, with an optional delay between attempts. `RetryPolicy` is stateless and can be shared as needed.
+Retry policies retry failed executions a certain number of times, with an optional delay between attempts. [`RetryPolicy`][RetryPolicy] is stateless and can be shared as needed.
 
 ## Usage
 
-Creating and using a `RetryPolicy` is straightforward:
+Creating and using a [`RetryPolicy`][RetryPolicy] is straightforward:
 
 ```python
 from failsafe import Failsafe, RetryPolicy
@@ -27,7 +27,7 @@ connection = Failsafe(retry).call(connect, host)
 
 ### Failure Handling
 
-A `RetryPolicy` can be configured to handle only [certain results, exceptions, or conditions][failure-handling] as failures:
+A [`RetryPolicy`][RetryPolicy] can be configured to handle only [certain results, exceptions, or conditions][failure-handling] as failures:
 
 ```python
 RetryPolicy(handle=[ConnectionError, lambda result, exc: result is None])
@@ -35,7 +35,7 @@ RetryPolicy(handle=[ConnectionError, lambda result, exc: result is None])
 
 ### Max Retries
 
-By default a `RetryPolicy` allows 2 retries, for a maximum of 3 attempts:
+By default a [`RetryPolicy`][RetryPolicy] allows 2 retries, for a maximum of 3 attempts:
 
 ```python
 RetryPolicy(max_retries=2)
@@ -60,7 +60,7 @@ Delays are clamped to the remaining budget, so a long backoff never overshoots `
 
 ### Delays
 
-By default a `RetryPolicy` has no delay between attempts. Seconds or a `timedelta` configure a fixed delay:
+By default a [`RetryPolicy`][RetryPolicy] has no delay between attempts. Seconds or a `timedelta` configure a fixed delay:
 
 ```python
 RetryPolicy(delay=1.0)
@@ -114,7 +114,7 @@ RetryPolicy(budget=budget)
 
 ### Return Value
 
-By default, when an execution fails and the retries are exhausted, `RetriesExceeded` is raised. It carries the last result and exception, and chains the original as `__cause__`:
+By default, when an execution fails and the retries are exhausted, [`RetriesExceeded`][RetriesExceeded] is raised. It carries the last result and exception, and chains the original as `__cause__`:
 
 ```python
 try:
@@ -133,8 +133,8 @@ What that means depends on how the last attempt failed:
 
 | Last attempt | Default | `return_last_failure=True` |
 |---|---|---|
-| raised an exception | raises `RetriesExceeded` | re-raises that exception |
-| returned a handled value | raises `RetriesExceeded` | **returns the value** |
+| raised an exception | raises [`RetriesExceeded`][RetriesExceeded] | re-raises that exception |
+| returned a handled value | raises [`RetriesExceeded`][RetriesExceeded] | **returns the value** |
 
 The second row is the useful one. A policy with `handle=500` that exhausts its retries returns `500` to the caller — no exception is raised at all, so a bare `try`/`except` will not see it:
 
@@ -152,7 +152,7 @@ If additional handling or an alternative result is needed, compose a [fallback][
 
 ### Event Listeners
 
-In addition to the standard [policy event listeners][policy-listeners], a `RetryPolicy` can notify you when a retry is scheduled or about to be attempted, when the retries are exceeded, or when retries are aborted:
+In addition to the standard [policy event listeners][policy-listeners], a [`RetryPolicy`][RetryPolicy] can notify you when a retry is scheduled or about to be attempted, when the retries are exceeded, or when retries are aborted:
 
 ```python
 retry = RetryPolicy(

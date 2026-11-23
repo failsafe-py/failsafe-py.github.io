@@ -91,7 +91,7 @@ guarded = Failsafe(*base_policies, breaker)
 
 Execution begins with the outer-most policy. That policy in turn calls the next inner policy, and so on, until the user-provided function is reached. A result or exception travels back out through the policy layers, handled if needed by any policy along the way.
 
-Each policy makes its own decision to allow an execution attempt to proceed and how to handle a result. A `RetryPolicy` may retry, which calls the next inner policy again, or it may return. A `CircuitBreaker` may raise before an attempt even reaches the function.
+Each policy makes its own decision to allow an execution attempt to proceed and how to handle a result. A [`RetryPolicy`][RetryPolicy] may retry, which calls the next inner policy again, or it may return. A [`CircuitBreaker`][CircuitBreaker] may raise before an attempt even reaches the function.
 
 ### Example Execution
 
@@ -99,14 +99,14 @@ Consider an execution of the following policy composition:
 
 <img class="composition" src="{{ '/assets/images/composition.svg' | relative_url }}" alt="Sequence diagram of a Fallback, RetryPolicy and CircuitBreaker composition">
 
-- `call` invokes the `Fallback`
-- `Fallback` calls the `RetryPolicy`
-- `RetryPolicy` calls the `CircuitBreaker`
-- `CircuitBreaker` raises `CircuitBreakerOpen` if the breaker is open, else calls the function
+- `call` invokes the [`Fallback`][Fallback]
+- [`Fallback`][Fallback] calls the [`RetryPolicy`][RetryPolicy]
+- [`RetryPolicy`][RetryPolicy] calls the [`CircuitBreaker`][CircuitBreaker]
+- [`CircuitBreaker`][CircuitBreaker] raises [`CircuitBreakerOpen`][CircuitBreakerOpen] if the breaker is open, else calls the function
 - the function executes and returns a result or raises
-- `CircuitBreaker` records the outcome as a success or failure, based on its [configuration](#failure-handling), possibly changing state, then returns
-- `RetryPolicy` records the outcome as a success or failure, and either retries or returns
-- `Fallback` handles the outcome according to its configuration and produces a fallback result if needed
+- [`CircuitBreaker`][CircuitBreaker] records the outcome as a success or failure, based on its [configuration](#failure-handling), possibly changing state, then returns
+- [`RetryPolicy`][RetryPolicy] records the outcome as a success or failure, and either retries or returns
+- [`Fallback`][Fallback] handles the outcome according to its configuration and produces a fallback result if needed
 - `call` returns the final result, or raises
 
 ### Composition and Exception Handling
@@ -123,11 +123,11 @@ When doing so for a policy composed *around* other policies, you may also want i
 Fallback(value=CACHED, handle=(RetriesExceeded, CircuitBreakerOpen, TimeoutExceeded))
 ```
 
-Every policy exception derives from `FailsafeError`, so `handle=FailsafeError` catches all of them at once.
+Every policy exception derives from [`FailsafeError`][FailsafeError], so `handle=FailsafeError` catches all of them at once.
 
 ### Composition Recommendations
 
-A common ordering places a `Fallback` outermost, followed by a `CachePolicy`, a `RetryPolicy` or `HedgePolicy`, a `CircuitBreaker`, `AdaptiveLimiter`, `AdaptiveThrottler` or `RateLimiter`, a `Bulkhead`, and a `Timeout` innermost:
+A common ordering places a [`Fallback`][Fallback] outermost, followed by a [`CachePolicy`][CachePolicy], a [`RetryPolicy`][RetryPolicy] or [`HedgePolicy`][HedgePolicy], a [`CircuitBreaker`][CircuitBreaker], [`AdaptiveLimiter`][AdaptiveLimiter], [`AdaptiveThrottler`][AdaptiveThrottler] or [`RateLimiter`][RateLimiter], a [`Bulkhead`][Bulkhead], and a [`Timeout`][Timeout] innermost:
 
 ```python
 Failsafe(fallback, cache, retry, breaker, bulkhead, timeout)
@@ -137,7 +137,7 @@ That said, it really depends on how the policies are being used, and different c
 
 ## Policy Sharing
 
-All policies are safe to share across executions, across threads, and between `Failsafe` and `AsyncFailsafe`. Some policies such as [Retry][retry] are stateless; others such as [Circuit Breaker][circuit-breakers], [Adaptive Limiter][adaptive-limiters], [Adaptive Throttler][adaptive-throttlers], [Rate Limiter][rate-limiters] and [Bulkhead][bulkheads] are stateful and are *meant* to be shared across executions that reach the same resource.
+All policies are safe to share across executions, across threads, and between [`Failsafe`][Failsafe] and [`AsyncFailsafe`][AsyncFailsafe]. Some policies such as [Retry][retry] are stateless; others such as [Circuit Breaker][circuit-breakers], [Adaptive Limiter][adaptive-limiters], [Adaptive Throttler][adaptive-throttlers], [Rate Limiter][rate-limiters] and [Bulkhead][bulkheads] are stateful and are *meant* to be shared across executions that reach the same resource.
 
 A stateful policy models the health of a resource, not of a call site. Build the composition once and reuse it:
 
