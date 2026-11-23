@@ -151,3 +151,18 @@ $border-color: #e4e4e4;
   @extend .callout;
   border-left: 4px solid #FFD43B;
 }
+
+// A link whose whole text is code — every API symbol pointing at the reference —
+// otherwise renders as plain black monospace, indistinguishable from the inline code
+// beside it. Carry the link colour through, and underline it: colour alone is not a
+// sufficient cue, and the theme's 1px grey rule is invisible under code's grey chip.
+a:not([class]) > code {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba($link-color, 0.4);
+  text-underline-offset: 2px;
+}
+
+a:not([class]):hover > code {
+  text-decoration-color: $link-color;
+}
