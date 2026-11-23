@@ -78,11 +78,12 @@ if limiter.try_acquire_permit():
     do_something()
 ```
 
-You can also integrate a standalone rate limiter with an external scheduler to wait for a permit:
+You can also integrate a standalone rate limiter with an external scheduler. Use
+`try_reserve_permit` when the scheduler has a maximum acceptable delay:
 
 ```python
-wait = limiter.reserve_permit()           # seconds to wait
-scheduler.enter(wait, 1, some_func)
+if (wait := limiter.try_reserve_permit(max_wait_time=5.0)) is not None:
+    scheduler.enter(wait, 1, some_func)
 ```
 
 ## Best Practices
