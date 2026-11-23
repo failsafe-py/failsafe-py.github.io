@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640"
+     font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <g transform="translate(173, 202) scale(0.40) translate(-59, -30)">
+    <path fill="#306998" fill-rule="evenodd"
+          d="M83 30h485a24 24 0 0 1 24 24v107a24 24 0 0 1-24 24H83a24 24 0 0 1-24-24V54a24 24 0 0 1 24-24zm23 47v61h439V77H106z"/>
+    <path fill="#5A9FD4" fill-rule="evenodd"
+          d="M83 250h337a24 24 0 0 1 24 24v107a24 24 0 0 1-24 24H83a24 24 0 0 1-24-24V274a24 24 0 0 1 24-24zm23 47v61h291v-61H106z"/>
+    <path fill="#FFD43B" fill-rule="evenodd"
+          d="M83 464h168a24 24 0 0 1 24 24v107a24 24 0 0 1-24 24H83a24 24 0 0 1-24-24V488a24 24 0 0 1 24-24zm23 47v61h122v-61H106z"/>
+  </g>
+  <text x="439" y="316" font-size="96" font-weight="600" fill="#2d3837">failsafe-py</text>
+  <text x="442" y="374" font-size="32" fill="#5c5962">Fault tolerance and resilience patterns for Python</text>
+</svg>
