@@ -40,7 +40,7 @@ Either transport wraps `httpx.HTTPTransport` by default; pass `transport=` to wr
 
 ## Retrying HTTP Failures
 
-`retry_policy()` builds a [`RetryPolicy`][retry] that knows which HTTP failures are worth retrying and honours `Retry-After`:
+`retry_policy()` builds a [`RetryPolicy`][RetryPolicy] that knows which HTTP failures are worth retrying and honours `Retry-After`:
 
 ```python
 from failsafe import Backoff
@@ -49,7 +49,7 @@ from failsafe.httpx import retry_policy
 retry = retry_policy(max_retries=3, delay=Backoff(1.0, 30.0))
 ```
 
-It is an ordinary `RetryPolicy` with two defaults filled in, so every retry parameter is available and overridable.
+It is an ordinary [`RetryPolicy`][RetryPolicy] with two defaults filled in, so every retry parameter is available and overridable.
 
 ### What Counts as Retryable
 
@@ -68,7 +68,7 @@ breaker = CircuitBreaker(handle=is_retryable)
 
 ### Return Value
 
-A failing response is still a response. When the retries are exhausted, `retry_policy()` returns the last response instead of raising [`RetriesExceeded`][retry], so the caller can inspect the status and body:
+A failing response is still a response. When the retries are exhausted, `retry_policy()` returns the last response instead of raising [`RetriesExceeded`][RetriesExceeded], so the caller can inspect the status and body:
 
 ```python
 response = client.get(url)   # a 500 after 3 attempts, not an exception
@@ -78,7 +78,7 @@ This is [`return_last_failure=True`][retry-return-value], which `retry_policy()`
 
 ## Timeouts
 
-A [`Timeout`][timeouts] composed into the transport bounds the round trip, in sync as well as async. The transport narrows each phase of httpx's own timeout to the execution's remaining budget, so httpx enforces the deadline rather than merely reporting it afterwards:
+A [`Timeout`][Timeout] composed into the transport bounds the round trip, in sync as well as async. The transport narrows each phase of httpx's own timeout to the execution's remaining budget, so httpx enforces the deadline rather than merely reporting it afterwards:
 
 ```python
 client = httpx.Client(transport=FailsafeTransport(Timeout(2.0)))

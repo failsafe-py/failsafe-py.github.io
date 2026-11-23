@@ -13,7 +13,7 @@ Cache policies limit unnecessary load by serving previous execution results, ski
 
 ## Usage
 
-Creating and using a `CachePolicy` for a cache is simple:
+Creating and using a [`CachePolicy`][CachePolicy] for a cache is simple:
 
 ```python
 from failsafe import CachePolicy, Failsafe
@@ -59,26 +59,19 @@ A `cache_key` block **takes precedence** over the policy's `key=`. One of the tw
 
 ## The Cache Backend
 
-A backend needs two methods:
+A backend is any mutable mapping. A plain `dict`, `cachetools` cache, or custom mapping
+works directly:
 
 ```python
-class Cache(Protocol):
-    def get(self, key: str) -> tuple[Any, bool]: ...   # (value, was_present)
-    def set(self, key: str, value: Any) -> None: ...
+backend = {}
+cache = CachePolicy(backend, key=lambda req: f"user:{req.user_id}")
 ```
 
-The protocol is structural, so a `dict` subclass, an LRU, or a Redis wrapper all satisfy it without importing anything from this library:
+Values are read with `backend[key]` and stored with `backend[key] = value`; `KeyError`
+means a miss. This follows Python's mapping protocol, preserves cached `None`, and avoids
+an adapter around existing cache implementations.
 
-```python
-class DictCache:
-    def __init__(self): self._d = {}
-    def get(self, key): return (self._d.get(key), key in self._d)
-    def set(self, key, value): self._d[key] = value
-```
-
-`get` returns a presence flag rather than a sentinel, so a cached `None` is a hit rather than a miss.
-
-Backends own their eviction, expiry and thread safety. The library deliberately ships no cache implementation: `cachetools`, `redis` and a plain dict already exist, and expiry policy is an application decision.
+Backends own their eviction, expiry and thread safety.
 
 ## Configuration
 

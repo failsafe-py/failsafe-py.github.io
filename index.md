@@ -14,8 +14,8 @@ failsafe-py is a library for building resilient, fault tolerant Python applicati
 Every policy works the same from sync and async code, and one policy instance can be shared between both.
 
 {: .callout-unreleased }
-> **Alpha.** failsafe-py is an agentic rewrite of [failsafe-go](https://failsafe-go.dev)
-> and has not been released. Expect the API to change.
+> **Alpha.** failsafe-py is an agentic rewrite of [failsafe-go](https://failsafe-go.dev).
+> API specifics may change, expect a stable 1.0 release before end of year.
 
 ## Getting Started
 
@@ -44,7 +44,7 @@ def connect(host): ...
 
 ### Asynchronous Execution
 
-Executing a coroutine function [asynchronously][async-execution] *with* retries uses `AsyncFailsafe`, which takes the same policy objects:
+Executing a coroutine function [asynchronously][async-execution] *with* retries uses [`AsyncFailsafe`][AsyncFailsafe], which takes the same policy objects:
 
 ```python
 from failsafe import AsyncFailsafe

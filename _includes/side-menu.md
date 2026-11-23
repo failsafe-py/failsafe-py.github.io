@@ -26,6 +26,7 @@
   - [Type Safety][type-safety]
 
 - Resources
+  - [Reference][reference]
   - [Github][github]
   - [Comparisons][comparisons]
 

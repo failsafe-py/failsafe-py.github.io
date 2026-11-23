@@ -31,7 +31,7 @@ Absence of a priority is `None`, which cannot be mistaken for a valid level the 
 
 ## Prioritizers
 
-To use prioritized rejection, first create a `Prioritizer`. There is one per policy family, because each computes overload differently:
+To use prioritized rejection, first create a [`Prioritizer`][Prioritizer]. There is one per policy family, because each computes overload differently:
 
 ```python
 from failsafe import queue_prioritizer, throttle_prioritizer
@@ -40,7 +40,7 @@ prioritizer = queue_prioritizer()      # for adaptive limiters
 prioritizer = throttle_prioritizer()   # for adaptive throttlers
 ```
 
-A `Prioritizer` stores the levels of recent executions and calibrates a rejection threshold from those levels and the registered policies' stats. A shared prioritizer determines one threshold across multiple policies.
+A [`Prioritizer`][Prioritizer] stores the levels of recent executions and calibrates a rejection threshold from those levels and the registered policies' stats. A shared prioritizer determines one threshold across multiple policies.
 
 Then build a prioritized policy from it:
 
@@ -51,7 +51,7 @@ throttler = AdaptiveThrottler().prioritized_by(prioritizer)
 
 `prioritized_by` registers the policy and returns it, rather than producing a separate `PriorityLimiter` type. One type per policy keeps the surface smaller and lets the same instance be metered and composed uniformly.
 
-Prioritization only matters when a policy is overloaded and must reject something. Each policy determines how overloaded it is; the `Prioritizer` combines that across policies into a global rejection rate.
+Prioritization only matters when a policy is overloaded and must reject something. Each policy determines how overloaded it is; the [`Prioritizer`][Prioritizer] combines that across policies into a global rejection rate.
 
 ## Calibration
 
@@ -66,7 +66,7 @@ with prioritizer.scheduled_calibrations(1.0):
 
 ## Prioritized Execution
 
-One composition serves every priority. The priority belongs to the *request*, not to the policy, so it is set at the call site rather than baked into a second `Failsafe`:
+One composition serves every priority. The priority belongs to the *request*, not to the policy, so it is set at the call site rather than baked into a second [`Failsafe`][Failsafe]:
 
 ```python
 from failsafe import Priority, priority_scope
@@ -84,7 +84,7 @@ When a policy is exceeded, executions are rejected based on the prioritizer's re
 
 ## Usage Tracking
 
-Adaptive limiters can track usage per user, so users with higher usage are shed before those with lower usage. Configure a `UsageTracker` on the prioritizer:
+Adaptive limiters can track usage per user, so users with higher usage are shed before those with lower usage. Configure a [`UsageTracker`][UsageTracker] on the prioritizer:
 
 ```python
 from failsafe import UsageTracker, user_scope
@@ -119,7 +119,7 @@ with level_scope(250):
 
 ### Event Listeners
 
-A `Prioritizer` can notify you when its rejection threshold changes:
+A [`Prioritizer`][Prioritizer] can notify you when its rejection threshold changes:
 
 ```python
 prioritizer = queue_prioritizer(

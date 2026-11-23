@@ -26,7 +26,7 @@ Outstanding [hedge][hedge] executions are cancelled once a successful result arr
 
 ## Deadlines in Sync Mode
 
-A sync execution sets a deadline; it is not cancelled from another thread. `current_execution().remaining()` is the seconds left before the nearest deadline — from a [`Timeout`][timeouts], a retry `max_duration`, or both — or `None` if none is set. Pass it to whatever does the I/O:
+A sync execution sets a deadline; it is not cancelled from another thread. `current_execution().remaining()` is the seconds left before the nearest deadline — from a [`Timeout`][Timeout], a retry `max_duration`, or both — or `None` if none is set. Pass it to whatever does the I/O:
 
 ```python
 from failsafe import current_execution

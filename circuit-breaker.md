@@ -13,7 +13,7 @@ title: Circuit Breaker
 
 ## Usage
 
-Creating and using a `CircuitBreaker` is straightforward:
+Creating and using a [`CircuitBreaker`][CircuitBreaker] is straightforward:
 
 ```python
 from failsafe import CircuitBreaker, Failsafe
@@ -30,7 +30,7 @@ Failsafe(breaker).call(send_message)
 
 ## How it Works
 
-When recent execution failures exceed a configured threshold, the breaker is *opened* and further executions fail with `CircuitBreakerOpen` without the function being called. After a delay the breaker becomes *half-open*, admitting trial executions that determine whether it should close or open again. If the trials meet the success threshold the breaker *closes*, otherwise it re-*opens*.
+When recent execution failures exceed a configured threshold, the breaker is *opened* and further executions fail with [`CircuitBreakerOpen`][CircuitBreakerOpen] without the function being called. After a delay the breaker becomes *half-open*, admitting trial executions that determine whether it should close or open again. If the trials meet the success threshold the breaker *closes*, otherwise it re-*opens*.
 
 Half-open admits a **bounded** number of concurrent trials, capped at the success-thresholding capacity and refilled as results arrive. Without that cap, every caller that queued up during the delay is admitted at once and stampedes the service that is trying to recover.
 
@@ -38,7 +38,7 @@ Half-open admits a **bounded** number of concurrent trials, capped at the succes
 
 ### Failure Handling
 
-A `CircuitBreaker` can be configured to handle only [certain results, exceptions, or conditions][failure-handling] as failures:
+A [`CircuitBreaker`][CircuitBreaker] can be configured to handle only [certain results, exceptions, or conditions][failure-handling] as failures:
 
 ```python
 CircuitBreaker(handle=[ConnectionError, lambda result, exc: result is None])
@@ -97,7 +97,7 @@ If no success threshold is configured, the failure threshold decides whether a h
 
 ### Event Listeners
 
-In addition to the standard [policy listeners][policy-listeners], a `CircuitBreaker` can notify you when its state changes:
+In addition to the standard [policy listeners][policy-listeners], a [`CircuitBreaker`][CircuitBreaker] can notify you when its state changes:
 
 ```python
 CircuitBreaker(
@@ -110,7 +110,7 @@ CircuitBreaker(
 
 ### Metrics
 
-A `CircuitBreaker` exposes metrics for the state it is in. Properties: `state`, `is_open`, `is_closed`, `is_half_open`, `executions`, `successes`, `failures`. Methods, because each takes the breaker's lock to compute: `success_rate()`, `failure_rate()`, `remaining_delay()`.
+A [`CircuitBreaker`][CircuitBreaker] exposes metrics for the state it is in. Properties: `state`, `is_open`, `is_closed`, `is_half_open`, `executions`, `successes`, `failures`. Methods, because each takes the breaker's lock to compute: `success_rate()`, `failure_rate()`, `remaining_delay()`.
 
 ```python
 if breaker.is_open:
@@ -119,7 +119,7 @@ if breaker.is_open:
 
 ## Standalone Usage
 
-A `CircuitBreaker` can also be manually operated:
+A [`CircuitBreaker`][CircuitBreaker] can also be manually operated:
 
 ```python
 breaker.open()
@@ -138,13 +138,13 @@ if breaker.try_acquire_permit():
 
 ## Best Practices
 
-A `CircuitBreaker` can and *should* be shared across code that accesses a common dependency. This ensures that when the breaker opens, every execution that shares that dependency is blocked until the circuit closes again. If multiple connections or requests reach the same external server, they should all go through the same breaker. Construct it at module or DI scope — see [policy sharing][policy-sharing].
+A [`CircuitBreaker`][CircuitBreaker] can and *should* be shared across code that accesses a common dependency. This ensures that when the breaker opens, every execution that shares that dependency is blocked until the circuit closes again. If multiple connections or requests reach the same external server, they should all go through the same breaker. Construct it at module or DI scope — see [policy sharing][policy-sharing].
 
-Sharing is safe across threads *and* across sync and async callers: a breaker tripped by a `Failsafe` call is seen open by an `AsyncFailsafe` call built from the same object.
+Sharing is safe across threads *and* across sync and async callers: a breaker tripped by a [`Failsafe`][Failsafe] call is seen open by an [`AsyncFailsafe`][AsyncFailsafe] call built from the same object.
 
 ### Composing Circuit Breakers
 
-When [composing policies][policy-composition], it is recommended not to have a circuit breaker handle exceptions from other policies, such as `BulkheadFull` or `RateLimitExceeded`. If an execution is rejected by some policy, there is no need for a breaker to open as well. This makes it easier to reason about why a breaker opened, and avoids limiting load for longer than needed.
+When [composing policies][policy-composition], it is recommended not to have a circuit breaker handle exceptions from other policies, such as [`BulkheadFull`][BulkheadFull] or [`RateLimitExceeded`][RateLimitExceeded]. If an execution is rejected by some policy, there is no need for a breaker to open as well. This makes it easier to reason about why a breaker opened, and avoids limiting load for longer than needed.
 
 Note that the default `handle=Exception` *does* catch those, since they are ordinary exceptions. Narrow it when composing a breaker outside a limiting policy:
 

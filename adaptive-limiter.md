@@ -37,7 +37,7 @@ limiter = AdaptiveLimiter(
 )
 ```
 
-A [`Bulkhead`][bulkheads] enforces a limit you picked; this one discovers it.
+A [`Bulkhead`][Bulkhead] enforces a limit you picked; this one discovers it.
 
 ## How it Works
 
@@ -46,7 +46,7 @@ Adaptive limiters adjust a concurrency limit up or down based on indications of 
 - If overload is detected, the limit may be decreased
 - If overload is not detected, the limit may be increased
 
-Executions are permitted until the number of concurrent executions hits the limit, after which they either fail with `LimitExceeded` or queue until permitted.
+Executions are permitted until the number of concurrent executions hits the limit, after which they either fail with [`LimitExceeded`][LimitExceeded] or queue until permitted.
 
 ## How it Behaves
 
@@ -156,7 +156,7 @@ limiter = AdaptiveLimiter(queueing=(2.0, 3.0)).prioritized_by(prioritizer)
 
 ### Event Listeners
 
-In addition to the standard [policy listeners][policy-listeners], an `AdaptiveLimiter` can notify you when the limit changes or is exceeded:
+In addition to the standard [policy listeners][policy-listeners], an [`AdaptiveLimiter`][AdaptiveLimiter] can notify you when the limit changes or is exceeded:
 
 ```python
 AdaptiveLimiter(
@@ -167,11 +167,11 @@ AdaptiveLimiter(
 
 ### Metrics
 
-`AdaptiveLimiter` provides metrics that include the current `limit`, `inflight` executions, and `queued` executions.
+[`AdaptiveLimiter`][AdaptiveLimiter] provides metrics that include the current `limit`, `inflight` executions, and `queued` executions.
 
 ## Standalone Usage
 
-An `AdaptiveLimiter` can be manually operated. A permit must be told whether the execution is a usable latency sample:
+An [`AdaptiveLimiter`][AdaptiveLimiter] can be manually operated. A permit must be told whether the execution is a usable latency sample:
 
 ```python
 permit = limiter.acquire_permit()

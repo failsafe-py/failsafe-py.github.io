@@ -3,6 +3,14 @@ description: Fault tolerance and resilience patterns for Python
 baseurl: "" # organisation site: served from the root. Links still go through it.
 url: "https://failsafe-py.github.io"
 repository: failsafe-py/failsafe-py.github.io
+
+# Link-preview card. jekyll-seo-tag reads `image` from page front matter, not from
+# site config, so it is set as a default for every page.
+defaults:
+  - scope:
+      path: ""
+    values:
+      image: /assets/images/social-preview.png
 github-url: https://github.com/failsafe-py/failsafe-py
 web-github-url: https://github.com/failsafe-py/failsafe-py.github.io
 permalink: pretty
